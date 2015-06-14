@@ -54,21 +54,20 @@ def modulo():
     stack.append(stack_pop() % stack_pop())
 
 def logical_not():
-    # ! : Logical NOT: Pop a value. If the value is zero, push 1; otherwise, push zero.
+    # '!'' : Logical NOT: Pop a value. If the value is zero, push 1; otherwise, push zero.
     if not stack_pop(): 
         stack.append(1)
     else:
         stack.append(0)
 
 def greater_than():
-    # ` : Greater than: Pop a and b, then push 1 if b>a, otherwise zero.
+    # '`' : Greater than: Pop a and b, then push 1 if b>a, otherwise zero.
     if stack_pop() > stack_pop():
         stack.append(1)
     else:
         stack.append(0)
 
 def change_direction(new_direction):
-    #print('cd', end = ' ')
     global IP_delta
     if new_direction in ['right', 'left', 'up', 'down']:
         if new_direction == 'right':
@@ -83,18 +82,18 @@ def change_direction(new_direction):
         raise KeyError
 
 def random_direction():
-    # ? : Start moving in a random cardinal direction
+    # '?' : Start moving in a random cardinal direction
     change_direction(random.choice(['right', 'left', 'up', 'down']))
 
 def left_right_choice():
-    # _ : Pop a value; move right if value=0, left otherwise
+    # '_' : Pop a value; move right if value=0, left otherwise
     if stack_pop():
         change_direction('left') 
     else:
         change_direction('right')
 
 def up_down_choice():
-    # | : Pop a value; move down if value=0, up otherwise
+    # '|' : Pop a value; move down if value=0, up otherwise
     if stack_pop():
         change_direction('up')
     else:
