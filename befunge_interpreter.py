@@ -148,13 +148,14 @@ def trampoline():
     
 
 def put():
+    global funge
     # 'p' : A "put" call (a way to store a value for later use). 
     #       Pop y, x, and v, then change the character at (x,y) 
     #       in the program to the character with ASCII value v
     y = stack_pop()
     x = stack_pop()
     v = stack_pop()
-    stack[(x,y)] = chr(v)
+    funge[(x,y)] = chr(v)
 
 def get():
     # 'g' : A "get" call (a way to retrieve data in storage). 
@@ -180,7 +181,7 @@ def nop():
     pass
 
 def leave():
-    print(' ')
+    #funge_print(funge)
     quit()
 
 def push_num(num):
@@ -234,6 +235,13 @@ def initilize(input_string):
         for x, letter in enumerate(line):
             funge[(x,y)] = letter
 
+def funge_print(fungespace):
+    output_string = '\n'
+    for y in range(bounds[1]):
+        for x in range(bounds[0]):
+            output_string+=str(fungespace.get((x,y),' '))
+        output_string+='\n'
+    print(output_string.rstrip())
 
 
 ruleset = {'+' : add, 
