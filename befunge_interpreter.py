@@ -62,7 +62,9 @@ def logical_not():
 
 def greater_than():
     # '`' : Greater than: Pop a and b, then push 1 if b>a, otherwise zero.
-    if stack_pop() > stack_pop():
+    a = stack_pop()
+    b = stack_pop()
+    if b>a:
         stack.append(1)
     else:
         stack.append(0)
