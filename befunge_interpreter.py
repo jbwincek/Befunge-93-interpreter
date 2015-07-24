@@ -286,9 +286,11 @@ ruleset = {'+' : add,
            }
 
 
-with open(sys.argv[1], 'r') as f:
-    initilize(f.read())
-
+try:
+    with open(sys.argv[1], 'r') as f:
+        initilize(f.read())
+except IndexError:
+    sys.exit("Error: expected a Befunge-93 file as a command argument.")
 while tick_counter < max_ticks:
     if not string_mode:
         tick()

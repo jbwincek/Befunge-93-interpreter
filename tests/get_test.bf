@@ -1,2 +1,4 @@
-21g,25*,@ 
+21g,@ 
   j   
+
+The correct output is: j
