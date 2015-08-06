@@ -14,7 +14,7 @@ Document:
     [x] ' fetch character
     [x] s store character
 Write Tests:
-    [ ] r refect/reverse
+    [x] r refect/reverse
     [ ] q quit
     [ ] x absolute delta
     [ ] @ end the current IP 
@@ -28,7 +28,8 @@ Write Tests:
     [ ] ' fetch character
     [ ] s store character
 Implement:
-    [ ] r refect/reverse
+    [x] r refect/reverse
+    [ ] handle unknown instructions as r
     [ ] q quit
     [ ] x absolute delta
     [ ] @ end the current IP 

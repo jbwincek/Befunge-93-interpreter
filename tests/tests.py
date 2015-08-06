@@ -59,6 +59,12 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_appropriately_handle_big_numbers(self):
         self.assert_correct_output("int_overflow_test.bf")
 
+    def test_the_reverse_instruction(self):
+        self.assert_correct_output("reverse_test.bf")
+
+    def test_unknown_character_handling(self):
+        self.assert_correct_output("handle_unknown_chars_well_test.bf")
+
 
 
 

@@ -184,6 +184,7 @@ def nop():
 
 def end_IP():
     # end the current IP, if the last IP then call leave()
+    pass
 
 def leave():
     # quit the program, even if there are current IPs running 
@@ -196,43 +197,55 @@ def push_num(num):
 def push_char(char):
     stack.append(ord(char))
 
-def reflect():
+def reverse():
     # 'r' : Multiply the IP_delta by -1
+    global IP_delta
+    IP_delta = [-x for x in IP_delta]
 
 def absolute_delta():
     # 'x' : Pop dy, pop dx, set IP_delta to (dx,dy)
+    pass
 
 def turn_right():
     # ']' : change the IP_delta so that the direction is now rotated 90 degrees to the right
+    pass
 
 def turn_left():
     # '[' : change the IP_delta so that the direction is now rotated 90 degrees to the left
+    pass
 
 def compare():
     # 'w' : pop b, pop a, if a<b turn left, if a>b turn right, if a=b go straight
+    pass
 
 def jump_over():
     # ';' : Skip over all instructions till the next ; is reached, takes zero ticks to execute
+    pass
 
 def jump_forward():
     # 'j' : pop n, the jump over n spaces in the IP_delta direction
+    pass
 
 def iterate():
     # 'k' : pop n, find next instruction in IP_delta direction, do that n times, takes only one tick
+    pass
 
 def clear_stack():
-    # 'n' : completely empty the stack 
+    # 'n' : completely empty the stack
+    pass
 
 def fetch_character():
     # "'" : push the value of the next character in IP_delta direction to the stack,
     #       then skip over that character, takes only one tick, command is an appostrophe
+    pass
 
 def store_character():
-    # 's' : pop a value off the stack, write it as a character into position+delta 
+    # 's' : pop a value off the stack, write it as a character into position+delta
+    pass
 
 def tick():
     #print('t', end = '')
-    ruleset[funge.get(IP, ' ')]()
+    ruleset.get(funge.get(IP, ' '), reverse)()
     move()
 
 def move():
@@ -311,6 +324,7 @@ ruleset = {'+' : add,
            '~' : ask_char,
            '@' : leave,
            ' ' : nop,
+           'r' : reverse,
            '0' : ft.partial(push_num, 0),
            '1' : ft.partial(push_num, 1),
            '2' : ft.partial(push_num, 2),
