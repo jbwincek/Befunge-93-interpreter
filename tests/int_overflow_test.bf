@@ -1,14 +1,13 @@
-22v    <
-  *     
-  :     
-  :     
-  .     
-  >25*,^
+88*v
+   2
+   \
+>  v
+-   
+1
+\
+*  :
+^2\_\.@
 
 
-will use python's ability to make relly big numbers without rollover
-equivilent to: 
-i = 2
-while True:
-    i = i * i 
-    print(i)
+The correct output is: 36893488147419103232
+aka 2^65

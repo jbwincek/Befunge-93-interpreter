@@ -56,6 +56,9 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_reverse_push_char(self):
         self.assert_correct_output("reverse_push_char_test.bf")
 
+    def test_appropriately_handle_big_numbers(self):
+        self.assert_correct_output("int_overflow_test.bf")
+
 
 
 
