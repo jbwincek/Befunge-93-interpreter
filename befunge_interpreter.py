@@ -182,7 +182,11 @@ def nop():
     # no op
     pass
 
+def end_IP():
+    # end the current IP, if the last IP then call leave()
+
 def leave():
+    # quit the program, even if there are current IPs running 
     #funge_print(funge)
     quit()
 
@@ -191,6 +195,40 @@ def push_num(num):
 
 def push_char(char):
     stack.append(ord(char))
+
+def reflect():
+    # 'r' : Multiply the IP_delta by -1
+
+def absolute_delta():
+    # 'x' : Pop dy, pop dx, set IP_delta to (dx,dy)
+
+def turn_right():
+    # ']' : change the IP_delta so that the direction is now rotated 90 degrees to the right
+
+def turn_left():
+    # '[' : change the IP_delta so that the direction is now rotated 90 degrees to the left
+
+def compare():
+    # 'w' : pop b, pop a, if a<b turn left, if a>b turn right, if a=b go straight
+
+def jump_over():
+    # ';' : Skip over all instructions till the next ; is reached, takes zero ticks to execute
+
+def jump_forward():
+    # 'j' : pop n, the jump over n spaces in the IP_delta direction
+
+def iterate():
+    # 'k' : pop n, find next instruction in IP_delta direction, do that n times, takes only one tick
+
+def clear_stack():
+    # 'n' : completely empty the stack 
+
+def fetch_character():
+    # "'" : push the value of the next character in IP_delta direction to the stack,
+    #       then skip over that character, takes only one tick, command is an appostrophe
+
+def store_character():
+    # 's' : pop a value off the stack, write it as a character into position+delta 
 
 def tick():
     #print('t', end = '')

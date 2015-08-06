@@ -1,0 +1,43 @@
+Todo List  
+Document:
+    [x] r refect/reverse
+    [x] q quit
+    [x] x absolute delta
+    [x] @ end the current IP 
+    [x] ] turn right
+    [x] [ turn left
+    [x] w compare
+    [x] ; skip/jump over
+    [x] j jump forward
+    [x] k iterate
+    [x] n clear the stack
+    [x] ' fetch character
+    [x] s store character
+Write Tests:
+    [ ] r refect/reverse
+    [ ] q quit
+    [ ] x absolute delta
+    [ ] @ end the current IP 
+    [ ] ] turn right
+    [ ] [ turn left
+    [ ] w compare
+    [ ] ; skip
+    [ ] j jump
+    [ ] k iterate
+    [ ] n clear the stack
+    [ ] ' fetch character
+    [ ] s store character
+Implement:
+    [ ] r refect/reverse
+    [ ] q quit
+    [ ] x absolute delta
+    [ ] @ end the current IP 
+    [ ] ] turn right
+    [ ] [ turn left
+    [ ] w compare
+    [ ] ; skip
+    [ ] j jump
+    [ ] k iterate
+    [ ] n clear the stack
+    [ ] ' fetch character
+    [ ] s store character
