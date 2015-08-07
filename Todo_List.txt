@@ -16,29 +16,37 @@ Document:
 Write Tests:
     [x] r refect/reverse
     [ ] q quit
-    [ ] x absolute delta
+    [x] x absolute delta
+        [ ] Write tests for beyond standard functionality
     [ ] @ end the current IP 
-    [ ] ] turn right
+    [x] ] turn right
     [ ] [ turn left
     [ ] w compare
     [ ] ; skip
-    [ ] j jump
+    [x] j jump forward
     [ ] k iterate
     [ ] n clear the stack
     [ ] ' fetch character
     [ ] s store character
+    [x] wrapping tests
 Implement:
     [x] r refect/reverse
     [ ] handle unknown instructions as r
     [ ] q quit
-    [ ] x absolute delta
+    [x] x absolute delta
     [ ] @ end the current IP 
-    [ ] ] turn right
+    [x] ] turn right
     [ ] [ turn left
     [ ] w compare
     [ ] ; skip
-    [ ] j jump
+    [x] j jump
     [ ] k iterate
     [ ] n clear the stack
     [ ] ' fetch character
     [ ] s store character
+Other:
+    [ ] change . instruction to print a space after the number printed
+        [ ] Update any tests this breaks
+    [ ] Add concurrency features
+        [ ] IP list, tuples (IP,IP_delta,storage_offset)
+    [ ] fix issue with wrapping over the top not working correctly

@@ -65,6 +65,21 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_unknown_character_handling(self):
         self.assert_correct_output("handle_unknown_chars_well_test.bf")
 
+    def test_absolute_delta(self):
+        self.assert_correct_output("absolute_delta_test.bf")
+
+    def test_jump(self):
+        self.assert_correct_output("jump_forward_test.bf")
+
+    def test_turns(self):
+        self.assert_correct_output("turn_right_test.bf")
+        self.assert_correct_output("turn_left_test.bf")
+
+    def test_wrapping(self):
+        self.assert_correct_output("wrap_around_top_test.bf")
+        self.assert_correct_output("wrap_around_left_test.bf")
+        self.assert_correct_output("wrap_around_right_test.bf")
+        self.assert_correct_output("wrap_around_bottom_test.bf")
 
 
 

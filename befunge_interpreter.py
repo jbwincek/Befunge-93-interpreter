@@ -1,4 +1,5 @@
 import functools as ft
+import math
 import time
 import random
 import sys
@@ -77,9 +78,9 @@ def change_direction(new_direction):
         elif new_direction == 'left':
             IP_delta = (-1,0)
         elif new_direction == 'up':
-            IP_delta = (0,-1)
-        elif new_direction == 'down':
             IP_delta = (0,1)
+        elif new_direction == 'down':
+            IP_delta = (0,-1)
     else:
         raise KeyError
 
@@ -146,7 +147,7 @@ def trampoline():
     #
     #  *  *  *   This *should* work, but might be buggy   *  *  *  
     #
-    IP = (IP[0] + IP_delta[0], IP[1] + IP_delta[1])
+    IP = (IP[0] + IP_delta[0], IP[1] - IP_delta[1])
     
 
 def put():
@@ -204,15 +205,33 @@ def reverse():
 
 def absolute_delta():
     # 'x' : Pop dy, pop dx, set IP_delta to (dx,dy)
-    pass
+    global IP_delta
+    dy = stack_pop()
+    dx = stack_pop()
+    IP_delta = (dx,dy)
 
 def turn_right():
     # ']' : change the IP_delta so that the direction is now rotated 90 degrees to the right
-    pass
+    # (1,0) -> (0,1)  remember: (0,-1) is actually down, not up
+    # (0,-1) -> (-1,0) 
+    # (-1,0) -> (0,1) 
+    # (0,1) -> (1,0)  
+    global IP_delta
+    theta = math.pi/2 + math.pi # 270° in radians, 270° cause counterclockwise rotation matrix
+    x,y = IP_delta
+    nx = (x*math.cos(theta)) - (y*math.sin(theta)) 
+    ny = (x*math.sin(theta)) + (y*math.cos(theta)) 
+    IP_delta = (int(nx),int(ny))
+
 
 def turn_left():
     # '[' : change the IP_delta so that the direction is now rotated 90 degrees to the left
-    pass
+    global IP_delta
+    theta = math.pi/2 # 90° in radians, 90° cause counterclockwise rotation matrix
+    x,y = IP_delta
+    nx = (x*math.cos(theta)) - (y*math.sin(theta)) 
+    ny = (x*math.sin(theta)) + (y*math.cos(theta)) 
+    IP_delta = (int(nx),int(ny))
 
 def compare():
     # 'w' : pop b, pop a, if a<b turn left, if a>b turn right, if a=b go straight
@@ -224,7 +243,9 @@ def jump_over():
 
 def jump_forward():
     # 'j' : pop n, the jump over n spaces in the IP_delta direction
-    pass
+    n = stack_pop()
+    for i in range(n):
+        move()
 
 def iterate():
     # 'k' : pop n, find next instruction in IP_delta direction, do that n times, takes only one tick
@@ -266,10 +287,10 @@ def move():
         # going off the right side
         IP = (0, IP[1])
     # updown movement next
-    if IP[1] + IP_delta[1] < bounds[1]:
+    if IP[1] - IP_delta[1] < bounds[1]:
         # normal movement
-        IP = (IP[0], IP[1] + IP_delta[1])
-    elif IP[1] + IP_delta[1] < 0:
+        IP = (IP[0], IP[1] - IP_delta[1])
+    elif IP[1] - IP_delta[1] < 0:
         # going off the top
         IP = (IP[0], bounds[1])
     else:
@@ -325,6 +346,10 @@ ruleset = {'+' : add,
            '@' : leave,
            ' ' : nop,
            'r' : reverse,
+           'x' : absolute_delta,
+           'j' : jump_forward,
+           ']' : turn_right,
+           '[' : turn_left,
            '0' : ft.partial(push_num, 0),
            '1' : ft.partial(push_num, 1),
            '2' : ft.partial(push_num, 2),
