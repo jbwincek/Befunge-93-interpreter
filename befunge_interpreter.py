@@ -77,9 +77,9 @@ def change_direction(new_direction):
         elif new_direction == 'left':
             IP_delta = (-1,0)
         elif new_direction == 'up':
-            IP_delta = (0,-1)
-        elif new_direction == 'down':
             IP_delta = (0,1)
+        elif new_direction == 'down':
+            IP_delta = (0,-1)
     else:
         raise KeyError
 
@@ -141,12 +141,11 @@ def print_ASCII():
         print(chr(popped), end = '')
 
 def trampoline():
-    global IP
     # '#' : Trampoline: Skip next cell
     #
     #  *  *  *   This *should* work, but might be buggy   *  *  *  
     #
-    IP = (IP[0] + IP_delta[0], IP[1] + IP_delta[1])
+    move()
     
 
 def put():
@@ -205,7 +204,7 @@ def move():
     global IP 
     #print('m', end = '')
     # left right movement first
-    if IP[0] + IP_delta[0] < bounds[0]:
+    if 0 < IP[0] + IP_delta[0] < bounds[0]:
         # normal movement
         IP = (IP[0] + IP_delta[0], IP[1])
     elif IP[0] + IP_delta[0] < 0:
@@ -215,10 +214,10 @@ def move():
         # going off the right side
         IP = (0, IP[1])
     # updown movement next
-    if IP[1] + IP_delta[1] < bounds[1]:
+    if 0 < IP[1] - IP_delta[1] < bounds[1]:
         # normal movement
-        IP = (IP[0], IP[1] + IP_delta[1])
-    elif IP[1] + IP_delta[1] < 0:
+        IP = (IP[0], IP[1] - IP_delta[1])
+    elif IP[1] - IP_delta[1] < 0:
         # going off the top
         IP = (IP[0], bounds[1])
     else:
