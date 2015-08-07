@@ -81,6 +81,11 @@ class BefungeInterpreterTests(unittest.TestCase):
         self.assert_correct_output("wrap_around_right_test.bf")
         self.assert_correct_output("wrap_around_bottom_test.bf")
 
+    def test_compare(self):
+        self.assert_correct_output("compare_straight_test.bf")
+        self.assert_correct_output("compare_right_test.bf")
+        self.assert_correct_output("compare_left_test.bf")
+
 
 
 if __name__ == '__main__':

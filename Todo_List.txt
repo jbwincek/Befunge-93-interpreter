@@ -20,8 +20,8 @@ Write Tests:
         [ ] Write tests for beyond standard functionality
     [ ] @ end the current IP 
     [x] ] turn right
-    [ ] [ turn left
-    [ ] w compare
+    [x] [ turn left
+    [x] w compare
     [ ] ; skip
     [x] j jump forward
     [ ] k iterate
@@ -36,8 +36,8 @@ Implement:
     [x] x absolute delta
     [ ] @ end the current IP 
     [x] ] turn right
-    [ ] [ turn left
-    [ ] w compare
+    [x] [ turn left
+    [x] w compare
     [ ] ; skip
     [x] j jump
     [ ] k iterate

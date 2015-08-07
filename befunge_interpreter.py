@@ -235,7 +235,12 @@ def turn_left():
 
 def compare():
     # 'w' : pop b, pop a, if a<b turn left, if a>b turn right, if a=b go straight
-    pass
+    b = stack_pop()
+    a = stack_pop()
+    if a<b:
+        turn_left()
+    elif a>b:
+        turn_right()
 
 def jump_over():
     # ';' : Skip over all instructions till the next ; is reached, takes zero ticks to execute
@@ -350,6 +355,7 @@ ruleset = {'+' : add,
            'j' : jump_forward,
            ']' : turn_right,
            '[' : turn_left,
+           'w' : compare,
            '0' : ft.partial(push_num, 0),
            '1' : ft.partial(push_num, 1),
            '2' : ft.partial(push_num, 2),
