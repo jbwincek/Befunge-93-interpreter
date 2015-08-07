@@ -277,7 +277,7 @@ def move():
     global IP 
     #print('m', end = '')
     # left right movement first
-    if IP[0] + IP_delta[0] < bounds[0]:
+    if 0 < IP[0] + IP_delta[0] < bounds[0]:
         # normal movement
         IP = (IP[0] + IP_delta[0], IP[1])
     elif IP[0] + IP_delta[0] < 0:
@@ -287,7 +287,7 @@ def move():
         # going off the right side
         IP = (0, IP[1])
     # updown movement next
-    if IP[1] - IP_delta[1] < bounds[1]:
+    if 0 < IP[1] - IP_delta[1] < bounds[1]:
         # normal movement
         IP = (IP[0], IP[1] - IP_delta[1])
     elif IP[1] - IP_delta[1] < 0:

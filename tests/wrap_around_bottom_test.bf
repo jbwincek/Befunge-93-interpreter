@@ -5,3 +5,5 @@
 .
 @
 v<
+#
+The correct output is: 20
