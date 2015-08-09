@@ -1,3 +1,3 @@
-"gnihtemos">:#,_@
+"os">:#,_@
 
-The correct output is: something
+The correct output is: so

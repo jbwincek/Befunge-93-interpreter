@@ -12,11 +12,14 @@ Befunge-93 Interpreter
 stack = [] #list vs deque performance is comparable in this use case
 IP = (0,0)
 IP_delta = (1,0)
+storage_offset = (0,0)
+IP_list = [(IP, IP_delta, storage_offset), ]
 bounds = (79,79)
 funge = {}
 string_mode = False
-max_ticks = 2000
+max_ticks = 20000
 tick_counter = 0
+_debug = False
 
 def stack_pop():
     try:
@@ -70,37 +73,37 @@ def greater_than():
     else:
         stack.append(0)
 
-def change_direction(new_direction):
-    global IP_delta
+def change_direction(new_direction, IP, IP_delta, storage_offset):
     if new_direction in ['right', 'left', 'up', 'down']:
         if new_direction == 'right':
-            IP_delta = (1,0)
+            IP_delta = (1, 0)
         elif new_direction == 'left':
-            IP_delta = (-1,0)
+            IP_delta = (-1, 0)
         elif new_direction == 'up':
-            IP_delta = (0,1)
+            IP_delta = (0, 1)
         elif new_direction == 'down':
-            IP_delta = (0,-1)
+            IP_delta = (0, -1)
+        return (IP, IP_delta, storage_offset)
     else:
         raise KeyError
 
-def random_direction():
+def random_direction(IP, IP_delta, storage_offset):
     # '?' : Start moving in a random cardinal direction
-    change_direction(random.choice(['right', 'left', 'up', 'down']))
+    return change_direction(random.choice(['right', 'left', 'up', 'down']), IP, IP_delta, storage_offset)
 
-def left_right_choice():
+def left_right_choice(IP, IP_delta, storage_offset):
     # '_' : Pop a value; move right if value=0, left otherwise
     if stack_pop():
-        change_direction('left') 
+        return change_direction('left', IP, IP_delta, storage_offset) 
     else:
-        change_direction('right')
+        return change_direction('right', IP, IP_delta, storage_offset)
 
-def up_down_choice():
+def up_down_choice(IP, IP_delta, storage_offset):
     # '|' : Pop a value; move down if value=0, up otherwise
     if stack_pop():
-        change_direction('up')
+        return change_direction('up', IP, IP_delta, storage_offset)
     else:
-        change_direction('down')
+        return change_direction('down', IP, IP_delta, storage_offset)
 
 def switch_string_mode():
     # '"' : Start sring mode: push each character's ASCII value all the way to the next "
@@ -141,13 +144,9 @@ def print_ASCII():
     else:
         print(chr(popped), end = '')
 
-def trampoline():
-    global IP
+def trampoline(IP, IP_delta, storage_offset):
     # '#' : Trampoline: Skip next cell
-    #
-    #  *  *  *   This *should* work, but might be buggy   *  *  *  
-    #
-    IP = (IP[0] + IP_delta[0], IP[1] - IP_delta[1])
+    return move(IP, IP_delta, storage_offset)
     
 
 def put():
@@ -183,7 +182,7 @@ def nop():
     # no op
     pass
 
-def end_IP():
+def end_IP(IP, IP_delta, storage_offset):
     # end the current IP, if the last IP then call leave()
     pass
 
@@ -198,89 +197,104 @@ def push_num(num):
 def push_char(char):
     stack.append(ord(char))
 
-def reverse():
+def reverse(IP, IP_delta, storage_offset):
     # 'r' : Multiply the IP_delta by -1
-    global IP_delta
-    IP_delta = [-x for x in IP_delta]
+    IP_delta = tuple([-x for x in IP_delta])
+    return (IP, IP_delta, storage_offset)
 
-def absolute_delta():
+def absolute_delta(IP, IP_delta, storage_offset):
     # 'x' : Pop dy, pop dx, set IP_delta to (dx,dy)
-    global IP_delta
     dy = stack_pop()
     dx = stack_pop()
-    IP_delta = (dx,dy)
+    IP_delta = (dx, dy)
+    return (IP, IP_delta, storage_offset)
 
-def turn_right():
+def turn_right(IP, IP_delta, storage_offset):
     # ']' : change the IP_delta so that the direction is now rotated 90 degrees to the right
-    # (1,0) -> (0,1)  remember: (0,-1) is actually down, not up
+    # (1,0) -> (0,-1)  remember: (0,-1) is actually down, not up
     # (0,-1) -> (-1,0) 
     # (-1,0) -> (0,1) 
-    # (0,1) -> (1,0)  
-    global IP_delta
+    # (0,1) -> (1,0)
     theta = math.pi/2 + math.pi # 270° in radians, 270° cause counterclockwise rotation matrix
     x,y = IP_delta
     nx = (x*math.cos(theta)) - (y*math.sin(theta)) 
     ny = (x*math.sin(theta)) + (y*math.cos(theta)) 
     IP_delta = (int(nx),int(ny))
+    return (IP, IP_delta, storage_offset)
 
 
-def turn_left():
+def turn_left(IP, IP_delta, storage_offset):
     # '[' : change the IP_delta so that the direction is now rotated 90 degrees to the left
-    global IP_delta
     theta = math.pi/2 # 90° in radians, 90° cause counterclockwise rotation matrix
     x,y = IP_delta
     nx = (x*math.cos(theta)) - (y*math.sin(theta)) 
     ny = (x*math.sin(theta)) + (y*math.cos(theta)) 
     IP_delta = (int(nx),int(ny))
+    return (IP, IP_delta, storage_offset)
 
-def compare():
+def compare(IP, IP_delta, storage_offset):
     # 'w' : pop b, pop a, if a<b turn left, if a>b turn right, if a=b go straight
     b = stack_pop()
     a = stack_pop()
     if a<b:
-        turn_left()
+        return turn_left(IP, IP_delta, storage_offset)
     elif a>b:
-        turn_right()
+        return turn_right(IP, IP_delta, storage_offset)
+    else:
+        return (IP, IP_delta, storage_offset)
 
 def jump_over():
     # ';' : Skip over all instructions till the next ; is reached, takes zero ticks to execute
     pass
 
-def jump_forward():
+def jump_forward(IP, IP_delta, storage_offset):
     # 'j' : pop n, the jump over n spaces in the IP_delta direction
     n = stack_pop()
     for i in range(n):
-        move()
+        IP, IP_delta, storage_offset = move(IP, IP_delta, storage_offset)
+    return (IP, IP_delta, storage_offset)
 
-def iterate():
-    # 'k' : pop n, find next instruction in IP_delta direction, do that n times, takes only one tick
+def iterate(IP, IP_delta, storage_offset):
+    # 'k' : pop n, find next instruction in IP_delta direction, do that n times, 
+    #       takes only one tick
+    #n = stack_pop()
     pass
+
 
 def clear_stack():
     # 'n' : completely empty the stack
-    pass
+    while stack:
+       stack_pop()
 
 def fetch_character():
-    # "'" : push the value of the next character in IP_delta direction to the stack,
-    #       then skip over that character, takes only one tick, command is an appostrophe
+    # "'" : push the value of the next character in IP_delta direction to the 
+    #       stack,then skip over that character, takes only one tick, command 
+    #       is an appostrophe
     pass
 
 def store_character():
     # 's' : pop a value off the stack, write it as a character into position+delta
     pass
 
-def tick():
-    #print('t', end = '')
-    ruleset.get(funge.get(IP, ' '), reverse)()
-    move()
+def tick(IP, IP_delta, storage_offset):
+    # Execute the instruction at the current IP, then move. 
+    # Try to give function extra info, if it doesn't need it, fall back
+    # to giving nothing. 
+    if _debug:
+        print(funge.get(IP, ' '), end = ' ')
+    try:
+        # the case where the IP, Delta or storage offset don't get effected. 
+        ruleset.get(funge.get(IP, ' '), reverse)()
+    except TypeError:
+        IP, IP_delta, storage_offset = ruleset.get(funge.get(IP, ' '), reverse)(IP, IP_delta, storage_offset)
+    return move(IP, IP_delta, storage_offset)
 
-def move():
+def move(IP, IP_delta, storage_offset):
     # idealy one could use timeit to try different implementations of this
     # function and find which way is fastest, but this seems good enough 
     # for now at least
-
-    global IP 
-    #print('m', end = '')
+    if _debug: 
+        print('({0}, {1}, {2}) '.format(IP, IP_delta, storage_offset), end = '\n')
     # left right movement first
     if 0 < IP[0] + IP_delta[0] < bounds[0]:
         # normal movement
@@ -301,6 +315,7 @@ def move():
     else:
         # going off the bottom
         IP = (IP[0], 0)
+    return (IP, IP_delta, storage_offset)
 
 def initilize(input_string):
     global funge
@@ -356,6 +371,7 @@ ruleset = {'+' : add,
            ']' : turn_right,
            '[' : turn_left,
            'w' : compare,
+           'n' : clear_stack,
            '0' : ft.partial(push_num, 0),
            '1' : ft.partial(push_num, 1),
            '2' : ft.partial(push_num, 2),
@@ -374,15 +390,18 @@ try:
         initilize(f.read())
 except IndexError:
     sys.exit("Error: expected a Befunge-93 file as a command argument.")
-while tick_counter < max_ticks:
-    if not string_mode:
-        tick()
-    else:
-        if funge[IP] == '"': 
-            switch_string_mode()
-            move()
-        else: 
-            push_char(funge[IP])
-            move()
+while tick_counter < max_ticks or not IP_list:
+    # Run as long as there are IPs and the tick counter hasn't been exceeded.
+    for i, IP_tuple in enumerate(IP_list):
+        if not string_mode:
+            IP_tuple = tick(*IP_tuple)
+        else:
+            if funge[IP_tuple[0]] == '"': 
+                switch_string_mode()
+                IP_tuple = move(*IP_tuple)
+            else: 
+                push_char(funge[IP_tuple[0]])
+                IP_tuple = move(*IP_tuple)
+        IP_list[i] = IP_tuple
     tick_counter += 1
     #time.sleep(.01)

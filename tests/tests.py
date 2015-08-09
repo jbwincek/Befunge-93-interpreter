@@ -86,6 +86,12 @@ class BefungeInterpreterTests(unittest.TestCase):
         self.assert_correct_output("compare_right_test.bf")
         self.assert_correct_output("compare_left_test.bf")
 
+    def test_stack_clearing(self):
+        self.assert_correct_output("clear_stack_test.bf")
+
+    def test_trampoline(self):
+        self.assert_correct_output("trampoline_test.bf")
+        self.assert_correct_output("trampoline_edge_cases_test.bf")
 
 
 if __name__ == '__main__':

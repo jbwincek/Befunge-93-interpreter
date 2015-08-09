@@ -13,6 +13,7 @@ Document:
     [x] n clear the stack
     [x] ' fetch character
     [x] s store character
+    [ ] y get system info
 Write Tests:
     [x] r refect/reverse
     [ ] q quit
@@ -25,10 +26,12 @@ Write Tests:
     [ ] ; skip
     [x] j jump forward
     [ ] k iterate
-    [ ] n clear the stack
+    [x] n clear the stack
     [ ] ' fetch character
     [ ] s store character
     [x] wrapping tests
+    [x] trampoline tests
+    [ ] get system info tests
 Implement:
     [x] r refect/reverse
     [ ] handle unknown instructions as r
@@ -41,12 +44,40 @@ Implement:
     [ ] ; skip
     [x] j jump
     [ ] k iterate
-    [ ] n clear the stack
+    [x] n clear the stack
     [ ] ' fetch character
     [ ] s store character
+    [ ] # get system info
 Other:
     [ ] change . instruction to print a space after the number printed
         [ ] Update any tests this breaks
-    [ ] Add concurrency features
-        [ ] IP list, tuples (IP,IP_delta,storage_offset)
+        
     [x] fix issue with wrapping over the top not working correctly
+    [ ] implement a run(funge_space) method, that takes a funge space as an argument, so different programs can be run without needing to start and stop the (python)iterpreter, should be backwards compatible with current functionality
+[ ] Add concurrency features  
+    [ ] IP list as a tuple (IP,IP_delta,storage_offset) 
+        [x] Find all places where IP needs to be passed around
+        [ ] Add/check appropriate changes
+            [x][x] change_direction (line 73)
+            [x][x] random_direction (line 87)
+            [x][x] left_right_choice (line 91)
+            [x][x] up_down_choice (line 98)
+            [ ][ ] switch_string_mode (line 105)
+                [ ] This may cause every other time where the tuple is passed around to also need a string_mode boolean in it. 
+            [x][x] trampoline (line 144)
+            [ ][ ] end_ip (line 182)
+            [x][x] reverse (line 197)
+            [x][x] absolute_delta (line 202)
+            [x][x] turn_right (line 209)
+            [x][x] turn_left (line 223)
+            [x][x] compare (line 232)
+            [ ][ ] jump_over (line 241)
+            [x][x] jump_forward (line 245)
+            [ ][ ] iterate (line 251)
+            [ ][ ] fetch_character 
+            [ ][ ] store_character
+            [x][x] move
+            [x][x] tick 
+    [ ] end_IP, how is it done? 
+
+
