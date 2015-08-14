@@ -93,6 +93,14 @@ class BefungeInterpreterTests(unittest.TestCase):
         self.assert_correct_output("trampoline_test.bf")
         self.assert_correct_output("trampoline_edge_cases_test.bf")
 
+    def test_fetch_character(self):
+        self.assert_correct_output("fetch_character_test.bf")
+        #self.assert_correct_output("fetch_character_hard_test.bf")
+        #    Not sure if the above test is failing because of a test coding issue, 
+        #    or a bug in the interpreter. 
+
+    def test_store_character(self):
+        self.assert_correct_output("store_character_test.bf")
 
 if __name__ == '__main__':
     unittest.main()

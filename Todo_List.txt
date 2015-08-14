@@ -27,14 +27,17 @@ Write Tests:
     [x] j jump forward
     [ ] k iterate
     [x] n clear the stack
-    [ ] ' fetch character
-    [ ] s store character
+    [x] ' fetch character
+        [ ] write more extensive tests, including: 
+              [ ] landing on a trampoline
+              [ ] jumping over an edge
+    [x] s store character
     [x] wrapping tests
     [x] trampoline tests
     [ ] get system info tests
 Implement:
     [x] r refect/reverse
-    [ ] handle unknown instructions as r
+    [ x handle unknown instructions as r
     [ ] q quit
     [x] x absolute delta
     [ ] @ end the current IP 
@@ -45,8 +48,8 @@ Implement:
     [x] j jump
     [ ] k iterate
     [x] n clear the stack
-    [ ] ' fetch character
-    [ ] s store character
+    [x] ' fetch character
+    [x] s store character
     [ ] # get system info
 Other:
     [ ] change . instruction to print a space after the number printed
@@ -54,6 +57,7 @@ Other:
         
     [x] fix issue with wrapping over the top not working correctly
     [ ] implement a run(funge_space) method, that takes a funge space as an argument, so different programs can be run without needing to start and stop the (python)iterpreter, should be backwards compatible with current functionality
+    [ ] update tests.py to use subprocess.check_output
 [ ] Add concurrency features  
     [ ] IP list as a tuple (IP,IP_delta,storage_offset) 
         [x] Find all places where IP needs to be passed around

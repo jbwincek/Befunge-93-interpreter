@@ -266,15 +266,20 @@ def clear_stack():
     while stack:
        stack_pop()
 
-def fetch_character():
+def fetch_character(IP, IP_delta, storage_offset):
     # "'" : push the value of the next character in IP_delta direction to the 
     #       stack,then skip over that character, takes only one tick, command 
     #       is an appostrophe
-    pass
+    IP, IP_delta, storage_offset = move(IP, IP_delta, storage_offset)
+    push_char(funge[IP])
+    return move(IP, IP_delta, storage_offset)
 
-def store_character():
+def store_character(IP, IP_delta, storage_offset):
     # 's' : pop a value off the stack, write it as a character into position+delta
-    pass
+    c = stack_pop()
+    IP, IP_delta, storage_offset = move(IP, IP_delta, storage_offset)
+    funge[IP] = chr(c)
+    return reverse(*move(*reverse(IP, IP_delta, storage_offset)))
 
 def tick(IP, IP_delta, storage_offset):
     # Execute the instruction at the current IP, then move. 
@@ -372,6 +377,8 @@ ruleset = {'+' : add,
            '[' : turn_left,
            'w' : compare,
            'n' : clear_stack,
+           "'" : fetch_character,
+           's' : store_character, 
            '0' : ft.partial(push_num, 0),
            '1' : ft.partial(push_num, 1),
            '2' : ft.partial(push_num, 2),
