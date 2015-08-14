@@ -106,7 +106,7 @@ def up_down_choice(IP, IP_delta, storage_offset):
         return change_direction('down', IP, IP_delta, storage_offset)
 
 def switch_string_mode():
-    # '"' : Start sring mode: push each character's ASCII value all the way to the next "
+    # '"' : Start string mode: push each character's ASCII value all the way to the next "
     #       yes, '"' does indeed work as intended, even though it looks fugly as hell
     global string_mode
     string_mode = not string_mode
@@ -134,15 +134,11 @@ def discard():
 
 def print_int():
     # '.' : Pop value and output as an integer
-    print(stack_pop(), end = '')
+    print(stack_pop(), end = ' ')
 
 def print_ASCII():
     # ','   Pop value and output as an ASCII character
-    popped = stack_pop()
-    if popped == 10:
-        print('\n')
-    else:
-        print(chr(popped), end = '')
+    print(chr(stack_pop()), end = '')
 
 def trampoline(IP, IP_delta, storage_offset):
     # '#' : Trampoline: Skip next cell
@@ -269,7 +265,7 @@ def clear_stack():
 def fetch_character(IP, IP_delta, storage_offset):
     # "'" : push the value of the next character in IP_delta direction to the 
     #       stack,then skip over that character, takes only one tick, command 
-    #       is an appostrophe
+    #       is an apostrophe
     IP, IP_delta, storage_offset = move(IP, IP_delta, storage_offset)
     push_char(funge[IP])
     return move(IP, IP_delta, storage_offset)
@@ -295,7 +291,7 @@ def tick(IP, IP_delta, storage_offset):
     return move(IP, IP_delta, storage_offset)
 
 def move(IP, IP_delta, storage_offset):
-    # idealy one could use timeit to try different implementations of this
+    # ideally one could use timeit to try different implementations of this
     # function and find which way is fastest, but this seems good enough 
     # for now at least
     if _debug: 

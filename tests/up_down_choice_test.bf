@@ -2,4 +2,4 @@
  >| >.0| >.@
   >0^  >0^
 
-The correct output is: 10
+The correct output is: 1 0

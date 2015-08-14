@@ -1,6 +1,6 @@
-Todo List  
+Todo List / Design Speculations 
 Document:
-    [x] r refect/reverse
+    [x] r reflect/reverse
     [x] q quit
     [x] x absolute delta
     [x] @ end the current IP 
@@ -15,7 +15,7 @@ Document:
     [x] s store character
     [ ] y get system info
 Write Tests:
-    [x] r refect/reverse
+    [x] r reflect/reverse
     [ ] q quit
     [x] x absolute delta
         [ ] Write tests for beyond standard functionality
@@ -36,7 +36,7 @@ Write Tests:
     [x] trampoline tests
     [ ] get system info tests
 Implement:
-    [x] r refect/reverse
+    [x] r reflect/reverse
     [ x handle unknown instructions as r
     [ ] q quit
     [x] x absolute delta
@@ -52,12 +52,11 @@ Implement:
     [x] s store character
     [ ] # get system info
 Other:
-    [ ] change . instruction to print a space after the number printed
-        [ ] Update any tests this breaks
-        
+    [x] change . instruction to print a space after the number printed
+        [x] Update any tests this breaks
     [x] fix issue with wrapping over the top not working correctly
-    [ ] implement a run(funge_space) method, that takes a funge space as an argument, so different programs can be run without needing to start and stop the (python)iterpreter, should be backwards compatible with current functionality
-    [ ] update tests.py to use subprocess.check_output
+    [ ] implement a run(funge_space) method, that takes a funge space as an argument, so different programs can be run without needing to start and stop the (python)interpreter, should be backwards compatible with current functionality
+    [x] update tests.py to use subprocess.check_output
 [ ] Add concurrency features  
     [ ] IP list as a tuple (IP,IP_delta,storage_offset) 
         [x] Find all places where IP needs to be passed around
@@ -78,10 +77,36 @@ Other:
             [ ][ ] jump_over (line 241)
             [x][x] jump_forward (line 245)
             [ ][ ] iterate (line 251)
-            [ ][ ] fetch_character 
-            [ ][ ] store_character
+            [x][x] fetch_character 
+            [x][x] store_character
             [x][x] move
             [x][x] tick 
-    [ ] end_IP, how is it done? 
+    [ ] end_IP, how is it done?
+        * end_this_IP boolean global flag, which end_current_IP could change to True, and then the main run loop could check each iteration if it's True, then end the IP if True. 
+          * Pluses:
+            * can fairly easily slap that on and implement it.
+            * It essentially sends a signal back up to a higher level of control, which then acts on the signal. 
+          * Cons: 
+            * Use of a global variable. 
+            * It feels hacky.
+        * Pass around the current IP_list index, and then end it from where it is.
+          * Pluses:
+            * No global variables
+            * Current IP almost certainly gets ended then and there.
+          * Cons:
+            * A lot of work to pass IP_list index around, both from a code writing standpoint, and from passing around information that rarely ever gets used. (much like storage_offset)
+            * Because it instakills current IP, errors could arise. 
+        * Potential third option? A signally system, that doesn't rely on a global variable. 
+          * What about an event listener in the run loop? 
+          * What about a special return value, instead of the standard IP_tuple, to signal that the IP should end.
+          * Pass around an IP_alive boolean flag with the IP_tuple, end the IP if it goes to false?
+            * How often and where would that need to be passed around? 
+
+
+
+
+
+
+
 
 

@@ -17,11 +17,15 @@ class BefungeInterpreterTests(unittest.TestCase):
         else:
             sys.exit("Could not find befunge_interpreter.py")
 
-    def assert_correct_output(self, test_file = None):
+    def assert_correct_output(self, test_file = None, strip = True):
         # moves all boilerplate code to here 
         self.test_file = self.cwd + test_file
-        c = subprocess.run(args=["python3", self.bi_loc, self.test_file], stdout=subprocess.PIPE, universal_newlines = True)
-        self.assertEqual(c.stdout, self.correct_output(self.test_file))
+        test_execution_output = subprocess.check_output(["python3", self.bi_loc, self.test_file], universal_newlines = True)
+        # .strip() on the output could in some circumstances cause issues, set to False as needed
+        if strip:
+            self.assertEqual(test_execution_output.strip(), self.correct_output(self.test_file))
+        else: 
+            self.assertEqual(test_execution_output, self.correct_output(self.test_file))
 
     def correct_output(self, file):
         """requires "The correct output is: " magic string  in the source code on it's own line"""
