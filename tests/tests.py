@@ -59,6 +59,9 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_appropriately_handle_big_numbers(self):
         self.assert_correct_output("int_overflow_test.bf")
 
+    def test_modulo(self):
+        self.assert_correct_output("modulo_test.bf")
+
 
 
 

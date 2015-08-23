@@ -51,7 +51,9 @@ def divide():
 
 def modulo():
     # '%' : Modulo: Pop a and b, then push the remainder of the integer division of b/a.
-    stack.append(stack_pop() % stack_pop())
+    a = stack_pop()
+    b = stack_pop()
+    stack.append(b%a)
 
 def logical_not():
     # '!'' : Logical NOT: Pop a value. If the value is zero, push 1; otherwise, push zero.
