@@ -82,25 +82,36 @@ Other:
             [x][x] move
             [x][x] tick 
     [ ] end_IP, how is it done?
-        * end_this_IP boolean global flag, which end_current_IP could change to True, and then the main run loop could check each iteration if it's True, then end the IP if True. 
+        1.) end_this_IP boolean global flag, which end_current_IP could change to True, and then the main run loop could check each iteration if it's True, then end the IP if True. 
           * Pluses:
             * can fairly easily slap that on and implement it.
             * It essentially sends a signal back up to a higher level of control, which then acts on the signal. 
           * Cons: 
             * Use of a global variable. 
             * It feels hacky.
-        * Pass around the current IP_list index, and then end it from where it is.
+            * What happens if multiple IPs end on the same tick? 
+              * Maybe it's okay, because flag would get set to true during IP execution, IP execution finishes, handler ends IP, then dismantles IP, then moves onto processing next IP, repeat. 
+        2.) Pass around the current IP_list index, and then end it from where it is.
           * Pluses:
             * No global variables
             * Current IP almost certainly gets ended then and there.
           * Cons:
             * A lot of work to pass IP_list index around, both from a code writing standpoint, and from passing around information that rarely ever gets used. (much like storage_offset)
             * Because it instakills current IP, errors could arise. 
-        * Potential third option? A signally system, that doesn't rely on a global variable. 
+        3.) Potential third option? A signally system, that doesn't rely on a global variable. 
           * What about an event listener in the run loop? 
           * What about a special return value, instead of the standard IP_tuple, to signal that the IP should end.
           * Pass around an IP_alive boolean flag with the IP_tuple, end the IP if it goes to false?
             * How often and where would that need to be passed around? 
+        4.) Much like option two, pass around an end_this_IP flag, but instead of using the IP_tuple currently implemented, switch to using a dictionary. So that in the function definitions I can just write **kwargs and take whatever is given to it, then use whatever information is needed. 
+          * Pros:
+            * Can easily add more things to pass around if needed later. 
+            * Seems neater/more organized
+            * I just like this idea the best, maybe it's the string mode problem looming, and this seems like a potential out for that. maybe it's the increased flexibility. 
+          * Uncertain:
+            * Can't tell how it effects readability
+          * Cons: 
+            * Lots of rewriting of code to implement it.  
 
 
 

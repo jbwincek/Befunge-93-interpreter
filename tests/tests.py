@@ -106,5 +106,8 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_store_character(self):
         self.assert_correct_output("store_character_test.bf")
 
+    def test_modulo(self):
+        self.assert_correct_output("modulo_test.bf")
+
 if __name__ == '__main__':
     unittest.main()
