@@ -72,8 +72,9 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_absolute_delta(self):
         self.assert_correct_output("absolute_delta_test.bf")
 
-    def test_jump(self):
+    def test_jump_forward(self):
         self.assert_correct_output("jump_forward_test.bf")
+        self.assert_correct_output("jump_nothing_test.bf")
 
     def test_turns(self):
         self.assert_correct_output("turn_right_test.bf")
@@ -108,6 +109,10 @@ class BefungeInterpreterTests(unittest.TestCase):
 
     def test_modulo(self):
         self.assert_correct_output("modulo_test.bf")
+
+    def test_jump_over(self):
+        self.assert_correct_output("jump_over_basic_test.bf")
+        self.assert_correct_output("jump_over_borders_test.bf")
 
 if __name__ == '__main__':
     unittest.main()

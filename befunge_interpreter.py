@@ -17,7 +17,7 @@ IP_list = [(IP, IP_delta, storage_offset), ]
 bounds = (79,79)
 funge = {}
 string_mode = False
-max_ticks = 20000
+max_ticks = 400000
 tick_counter = 0
 _debug = False
 
@@ -241,9 +241,13 @@ def compare(IP, IP_delta, storage_offset):
     else:
         return (IP, IP_delta, storage_offset)
 
-def jump_over():
+def jump_over(IP, IP_delta, storage_offset):
     # ';' : Skip over all instructions till the next ; is reached, takes zero ticks to execute
-    pass
+    state = (IP, IP_delta, storage_offset)
+    state = move(*state)
+    while funge.get(state[0], '') != ';':
+        state = move(*state)
+    return state
 
 def jump_forward(IP, IP_delta, storage_offset):
     # 'j' : pop n, the jump over n spaces in the IP_delta direction
@@ -297,7 +301,7 @@ def move(IP, IP_delta, storage_offset):
     # function and find which way is fastest, but this seems good enough 
     # for now at least
     if _debug: 
-        print('({0}, {1}, {2}) '.format(IP, IP_delta, storage_offset), end = '\n')
+        print(' IP:{0}, IP_delta:{1}, S.O.:{2} Stack: {3}'.format(IP, IP_delta, storage_offset, stack), end = '\n')
     # left right movement first
     if 0 < IP[0] + IP_delta[0] < bounds[0]:
         # normal movement
@@ -376,7 +380,8 @@ ruleset = {'+' : add,
            'w' : compare,
            'n' : clear_stack,
            "'" : fetch_character,
-           's' : store_character, 
+           's' : store_character,
+           ';' : jump_over, 
            '0' : ft.partial(push_num, 0),
            '1' : ft.partial(push_num, 1),
            '2' : ft.partial(push_num, 2),

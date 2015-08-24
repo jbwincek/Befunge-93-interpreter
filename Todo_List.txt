@@ -23,7 +23,7 @@ Write Tests:
     [x] ] turn right
     [x] [ turn left
     [x] w compare
-    [ ] ; skip
+    [x] ; jump over / skip
     [x] j jump forward
     [ ] k iterate
     [x] n clear the stack
@@ -44,8 +44,8 @@ Implement:
     [x] ] turn right
     [x] [ turn left
     [x] w compare
-    [ ] ; skip
-    [x] j jump
+    [x] ; jump over / skip
+    [x] j jump forward
     [ ] k iterate
     [x] n clear the stack
     [x] ' fetch character
