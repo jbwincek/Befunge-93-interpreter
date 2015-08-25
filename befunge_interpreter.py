@@ -392,6 +392,12 @@ ruleset = {'+' : add,
            '7' : ft.partial(push_num, 7),
            '8' : ft.partial(push_num, 8),
            '9' : ft.partial(push_num, 9),
+           'a' : ft.partial(push_num, 10),
+           'b' : ft.partial(push_num, 11),
+           'c' : ft.partial(push_num, 12),
+           'd' : ft.partial(push_num, 13),
+           'e' : ft.partial(push_num, 14),
+           'f' : ft.partial(push_num, 15),
            }
 
 

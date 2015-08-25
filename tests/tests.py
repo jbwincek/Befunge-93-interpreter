@@ -114,5 +114,8 @@ class BefungeInterpreterTests(unittest.TestCase):
         self.assert_correct_output("jump_over_basic_test.bf")
         self.assert_correct_output("jump_over_borders_test.bf")
 
+    def test_push_numbers_bigger_than_ten(self):
+        self.assert_correct_output("numbers_bigger_than_ten_test.bf")
+
 if __name__ == '__main__':
     unittest.main()
