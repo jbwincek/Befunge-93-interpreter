@@ -57,6 +57,7 @@ Other:
     [x] fix issue with wrapping over the top not working correctly
     [ ] implement a run(funge_space) method, that takes a funge space as an argument, so different programs can be run without needing to start and stop the (python)interpreter, should be backwards compatible with current functionality
     [x] update tests.py to use subprocess.check_output
+    [ ] format this document so that it doesn't rely on my narrow 45 column with word wrap width. 
 [ ] Add concurrency features  
     [ ] IP list as a tuple (IP,IP_delta,storage_offset) 
         [x] Find all places where IP needs to be passed around
@@ -74,7 +75,7 @@ Other:
             [x][x] turn_right (line 209)
             [x][x] turn_left (line 223)
             [x][x] compare (line 232)
-            [ ][ ] jump_over (line 241)
+            [x][x] jump_over (line 241)
             [x][x] jump_forward (line 245)
             [ ][ ] iterate (line 251)
             [x][x] fetch_character 
@@ -112,6 +113,16 @@ Other:
             * Can't tell how it effects readability
           * Cons: 
             * Lots of rewriting of code to implement it.  
+        5.) IP as a class, to save the state of the current IP
+          * Pros:
+            * Good readablity: IP.location and IP.delta are as easily comprehensible as IP and IP_delta
+            * functions that act on the IP: 
+              IP.move() instead of having a separate move function
+              IP.reverse() 
+            * While having a global state for IP related stuff worked well with only one IP ever, the limitations of that system are showing, this gets around that.
+          * Cons: 
+            * Lots of refactoring, seems worth it though
+            * Still doesn't handle the some methods needing state, and other functions not needing state. 
 
 
 
