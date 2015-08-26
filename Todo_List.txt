@@ -19,7 +19,8 @@ Write Tests:
     [ ] q quit
     [x] x absolute delta
         [ ] Write tests for beyond standard functionality
-    [ ] @ end the current IP 
+    [ ] @ end the current IP
+        [x] Well implementing it didn't break anything... 
     [x] ] turn right
     [x] [ turn left
     [x] w compare
@@ -40,7 +41,7 @@ Implement:
     [ x handle unknown instructions as r
     [ ] q quit
     [x] x absolute delta
-    [ ] @ end the current IP 
+    [x] @ end the current IP 
     [x] ] turn right
     [x] [ turn left
     [x] w compare
@@ -59,30 +60,30 @@ Other:
     [x] update tests.py to use subprocess.check_output
     [ ] format this document so that it doesn't rely on my narrow 45 column with word wrap width. 
 [ ] Add concurrency features  
-    [ ] IP list as a tuple (IP,IP_delta,storage_offset) 
+    [x] IP list as a list of IP states
         [x] Find all places where IP needs to be passed around
-        [ ] Add/check appropriate changes
-            [x][x] change_direction (line 73)
-            [x][x] random_direction (line 87)
-            [x][x] left_right_choice (line 91)
-            [x][x] up_down_choice (line 98)
-            [ ][ ] switch_string_mode (line 105)
-                [ ] This may cause every other time where the tuple is passed around to also need a string_mode boolean in it. 
-            [x][x] trampoline (line 144)
-            [ ][ ] end_ip (line 182)
-            [x][x] reverse (line 197)
-            [x][x] absolute_delta (line 202)
-            [x][x] turn_right (line 209)
-            [x][x] turn_left (line 223)
-            [x][x] compare (line 232)
-            [x][x] jump_over (line 241)
-            [x][x] jump_forward (line 245)
-            [ ][ ] iterate (line 251)
+        [x] Add/check appropriate changes
+            [x][x] change_direction
+            [x][x] random_direction
+            [x][x] left_right_choice
+            [x][x] up_down_choice 
+            [x][x] switch_string_mode - now represented as flag on the IP_state
+            [x][x] trampoline 
+            [x][x] end_ip 
+            [x][x] reverse 
+            [x][x] absolute_delta 
+            [x][x] turn_right 
+            [x][x] turn_left 
+            [x][x] compare 
+            [x][x] jump_over
+            [x][x] jump_forward
+            [ ][ ] iterate (line 293)
             [x][x] fetch_character 
             [x][x] store_character
             [x][x] move
+               [x] all usages of move
             [x][x] tick 
-    [ ] end_IP, how is it done?
+    [x] end_IP, how is it done? Chose option 5. 
         1.) end_this_IP boolean global flag, which end_current_IP could change to True, and then the main run loop could check each iteration if it's True, then end the IP if True. 
           * Pluses:
             * can fairly easily slap that on and implement it.
@@ -116,7 +117,7 @@ Other:
         5.) IP as a class, to save the state of the current IP
           * Pros:
             * Good readablity: IP.location and IP.delta are as easily comprehensible as IP and IP_delta
-            * functions that act on the IP: 
+            * methods that act on the IP: 
               IP.move() instead of having a separate move function
               IP.reverse() 
             * While having a global state for IP related stuff worked well with only one IP ever, the limitations of that system are showing, this gets around that.
