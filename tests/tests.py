@@ -117,5 +117,8 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_push_numbers_bigger_than_ten(self):
         self.assert_correct_output("numbers_bigger_than_ten_test.bf")
 
+    def test_divisions_resulting_in_floats(self):
+        self.assert_correct_output("float_tests.bf")
+
 if __name__ == '__main__':
     unittest.main()

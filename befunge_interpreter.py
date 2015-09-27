@@ -88,7 +88,7 @@ def divide():
         ask_num()
     else: 
         c = int(b) / int(a)
-        stack.append(c)
+        stack.append(math.floor(c))
 
 def modulo():
     # '%' : Modulo: Pop a and b, then push the remainder of the integer division of b/a.
@@ -329,7 +329,9 @@ def tick(IP):
     if _debug:
         print(funge.get(IP.location, ' '), end = ' ')
     try:
-        # the case where the IP, Delta or storage offset don't get effected. 
+        # the case where the IP, Delta or storage offset don't get effected.
+        # It is significantly quicker to do this with a try/except clause instead 
+        # of using len(inspect.signature(callable).parameters) - I checked. 
         ruleset.get(funge.get(IP.location, ' '), reverse)()
     except TypeError:
         IP = ruleset.get(funge.get(IP.location, ' '), reverse)(IP)
@@ -420,7 +422,7 @@ try:
     with open(sys.argv[1], 'r') as f:
         initilize(f.read())
 except IndexError:
-    sys.exit("Error: expected a Befunge-93 file as a command argument.")
+    sys.exit("Error: expected a Befunge-98 file as a command argument.")
 while tick_counter < max_ticks or not IP_list:
     # Run as long as there are IPs and the tick counter hasn't been exceeded.
     for i, IP in enumerate(IP_list):
