@@ -123,5 +123,8 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_quit(self):
         self.assert_correct_output("quit_test.bf")
 
+    def test_iterate(self):
+        self.assert_correct_output("iterate_test.bf")
+
 if __name__ == '__main__':
     unittest.main()

@@ -290,11 +290,12 @@ def iterate(IP):
     # 'k' : pop n, find next instruction in IP_delta direction, do that n times, 
     #       takes only one tick
     n = stack_pop()
-    start = IP.location
+    IP.move()
     while funge.get(IP.location, ' ') == ' ':
         IP.move()
     for i in range(n):
-        pass
+        IP = op(IP)
+    return IP
 
 def clear_stack():
     # 'n' : completely empty the stack
@@ -337,8 +338,6 @@ def tick(IP):
     IP = op(IP)
     IP.move()
     return IP
-
-
 
 def initilize(input_string):
     global funge
@@ -399,6 +398,7 @@ ruleset = {'+' : add,
            's' : store_character,
            ';' : jump_over, 
            'q' : quit,
+           'k' : iterate,
            '0' : ft.partial(push_num, 0),
            '1' : ft.partial(push_num, 1),
            '2' : ft.partial(push_num, 2),
