@@ -16,7 +16,7 @@ Document:
     [ ] y get system info
 Write Tests:
     [x] r reflect/reverse
-    [ ] q quit
+    [x] q quit
     [x] x absolute delta
         [ ] Write tests for beyond standard functionality
     [ ] @ end the current IP
@@ -38,8 +38,8 @@ Write Tests:
     [ ] get system info tests
 Implement:
     [x] r reflect/reverse
-    [ x handle unknown instructions as r
-    [ ] q quit
+    [x] handle unknown instructions as r
+    [x] q quit
     [x] x absolute delta
     [x] @ end the current IP 
     [x] ] turn right
@@ -60,6 +60,7 @@ Other:
     [x] update tests.py to use subprocess.check_output
     [ ] format this document so that it doesn't rely on my narrow 45 column with word wrap width. 
 [ ] Add concurrency features  
+    [ ] address IP.active checking slow down issues 
     [x] IP list as a list of IP states
         [x] Find all places where IP needs to be passed around
         [x] Add/check appropriate changes

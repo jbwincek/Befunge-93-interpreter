@@ -120,5 +120,8 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_divisions_resulting_in_floats(self):
         self.assert_correct_output("float_tests.bf")
 
+    def test_quit(self):
+        self.assert_correct_output("quit_test.bf")
+
 if __name__ == '__main__':
     unittest.main()

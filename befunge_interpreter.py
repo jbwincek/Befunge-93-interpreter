@@ -220,11 +220,6 @@ def end_IP(IP):
     IP.active = False
     return IP
 
-def leave():
-    # quit the program, even if there are current IPs running 
-    #funge_print(funge)
-    quit()
-
 def push_num(num):
     stack.append(int(num))
 
@@ -294,9 +289,12 @@ def jump_forward(IP):
 def iterate(IP):
     # 'k' : pop n, find next instruction in IP_delta direction, do that n times, 
     #       takes only one tick
-    #n = stack_pop()
-    pass
-
+    n = stack_pop()
+    start = IP.location
+    while funge.get(IP.location, ' ') == ' ':
+        IP.move()
+    for i in range(n):
+        pass
 
 def clear_stack():
     # 'n' : completely empty the stack
@@ -322,12 +320,7 @@ def store_character(IP):
     IP.reverse()
     return IP
 
-def tick(IP):
-    # Execute the instruction at the current IP, then move. 
-    # Try to give function extra info, if it doesn't need it, fall back
-    # to giving nothing. 
-    if _debug:
-        print(funge.get(IP.location, ' '), end = ' ')
+def op(IP, funge = funge):
     try:
         # the case where the IP, Delta or storage offset don't get effected.
         # It is significantly quicker to do this with a try/except clause instead 
@@ -335,6 +328,13 @@ def tick(IP):
         ruleset.get(funge.get(IP.location, ' '), reverse)()
     except TypeError:
         IP = ruleset.get(funge.get(IP.location, ' '), reverse)(IP)
+    return IP
+
+def tick(IP):
+    # 
+    if _debug:
+        print(funge.get(IP.location, ' '), end = ' ')
+    IP = op(IP)
     IP.move()
     return IP
 
@@ -386,7 +386,7 @@ ruleset = {'+' : add,
            'g' : get,
            '&' : ask_num,
            '~' : ask_char,
-           '@' : leave,
+           '@' : end_IP,
            ' ' : nop,
            'r' : reverse,
            'x' : absolute_delta,
@@ -398,6 +398,7 @@ ruleset = {'+' : add,
            "'" : fetch_character,
            's' : store_character,
            ';' : jump_over, 
+           'q' : quit,
            '0' : ft.partial(push_num, 0),
            '1' : ft.partial(push_num, 1),
            '2' : ft.partial(push_num, 2),
@@ -426,15 +427,16 @@ except IndexError:
 while tick_counter < max_ticks or not IP_list:
     # Run as long as there are IPs and the tick counter hasn't been exceeded.
     for i, IP in enumerate(IP_list):
-        if not IP.string_mode:
-            IP = tick(IP)
-        else:
-            if funge[IP.location] == '"': 
-                switch_string_mode(IP)
-                IP.move()
-            else: 
-                push_char(funge[IP.location])
-                IP.move()
-        IP_list[i] = IP
+        if IP.active:
+            if not IP.string_mode:
+                IP = tick(IP)
+            else:
+                if funge[IP.location] == '"': 
+                    switch_string_mode(IP)
+                    IP.move()
+                else: 
+                    push_char(funge[IP.location])
+                    IP.move()
+            IP_list[i] = IP
     tick_counter += 1
     #time.sleep(.01)
