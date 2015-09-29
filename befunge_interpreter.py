@@ -46,7 +46,7 @@ def divide():
     if not a: 
         ask_num()
     else: 
-        c = int(b) / int(a)
+        c = int(b) // int(a)
         stack.append(c)
 
 def modulo():
