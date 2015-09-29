@@ -87,8 +87,8 @@ def divide():
     if not a: 
         ask_num()
     else: 
-        c = int(b) / int(a)
-        stack.append(math.floor(c))
+        c = int(b) // int(a)
+        stack.append(c)
 
 def modulo():
     # '%' : Modulo: Pop a and b, then push the remainder of the integer division of b/a.
