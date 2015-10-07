@@ -1,136 +1,62 @@
 Todo List / Design Speculations 
 Document:
-    [x] r reflect/reverse
-    [x] q quit
-    [x] x absolute delta
-    [x] @ end the current IP 
-    [x] ] turn right
-    [x] [ turn left
-    [x] w compare
-    [x] ; skip/jump over
-    [x] j jump forward
-    [x] k iterate
-    [x] n clear the stack
-    [x] ' fetch character
-    [x] s store character
     [ ] y get system info
+    [ ] ( load semantics
+    [ ] ) unload semantics
+    [ ] = execute
+    [ ] i input file
+    [ ] o output file
+    [ ] t split (IP)
+    [ ] u stack under stack
+    [ ] z no op
+    [ ] { begin block
+    [ ] } end block
 Write Tests:
-    [x] r reflect/reverse
-    [x] q quit
     [x] x absolute delta
         [ ] Write tests for beyond standard functionality
     [ ] @ end the current IP
         [x] Well implementing it didn't break anything... 
-    [x] ] turn right
-    [x] [ turn left
-    [x] w compare
-    [x] ; jump over / skip
     [x] j jump forward
     [ ] k iterate
-    [x] n clear the stack
     [x] ' fetch character
         [ ] write more extensive tests, including: 
               [ ] landing on a trampoline
               [ ] jumping over an edge
-    [x] s store character
-    [x] wrapping tests
-    [x] trampoline tests
     [ ] get system info tests
+    [ ] ( load semantics
+    [ ] ) unload semantics
+    [ ] = execute
+    [ ] i input file
+    [ ] o output file
+    [ ] t split (IP)
+    [ ] u stack under stack
+    [ ] z no op
+    [ ] { begin block
+    [ ] } end block
 Implement:
-    [x] r reflect/reverse
-    [x] handle unknown instructions as r
-    [x] q quit
-    [x] x absolute delta
-    [x] @ end the current IP 
-    [x] ] turn right
-    [x] [ turn left
-    [x] w compare
-    [x] ; jump over / skip
-    [x] j jump forward
-    [ ] k iterate
-    [x] n clear the stack
-    [x] ' fetch character
-    [x] s store character
+    [x] k iterate
     [ ] # get system info
+    [ ] ( load semantics
+    [ ] ) unload semantics
+    [ ] = execute
+    [ ] i input file
+    [ ] o output file
+    [ ] t split (IP)
+    [ ] u stack under stack
+    [ ] z no op
+    [ ] { begin block
+    [ ] } end block
 Other:
-    [x] change . instruction to print a space after the number printed
-        [x] Update any tests this breaks
-    [x] fix issue with wrapping over the top not working correctly
-    [ ] implement a run(funge_space) method, that takes a funge space as an argument, so different programs can be run without needing to start and stop the (python)interpreter, should be backwards compatible with current functionality
-    [x] update tests.py to use subprocess.check_output
+    [ ] treat spaces "SGML-style" (ie, use only one tick to process multiple spaces, and count multiple contiguous spaces as only 1 space)
+    [ ] alphabetize ruleset
+    [ ] alphabetize instruction functions
+    [ ] match function names to Befunge spec instruction names
+    [ ] implement a run(funge_space)method, that takes a funge space as an argument, so different programs can be run without needing to start and stop the (python)interpreter, should be backwards compatible with current functionality
     [ ] format this document so that it doesn't rely on my narrow 45 column with word wrap width. 
 [ ] Add concurrency features  
     [ ] address IP.active checking slow down issues 
-    [x] IP list as a list of IP states
-        [x] Find all places where IP needs to be passed around
-        [x] Add/check appropriate changes
-            [x][x] change_direction
-            [x][x] random_direction
-            [x][x] left_right_choice
-            [x][x] up_down_choice 
-            [x][x] switch_string_mode - now represented as flag on the IP_state
-            [x][x] trampoline 
-            [x][x] end_ip 
-            [x][x] reverse 
-            [x][x] absolute_delta 
-            [x][x] turn_right 
-            [x][x] turn_left 
-            [x][x] compare 
-            [x][x] jump_over
-            [x][x] jump_forward
-            [ ][ ] iterate (line 293)
-            [x][x] fetch_character 
-            [x][x] store_character
-            [x][x] move
-               [x] all usages of move
-            [x][x] tick 
-    [x] end_IP, how is it done? Chose option 5. 
-        1.) end_this_IP boolean global flag, which end_current_IP could change to True, and then the main run loop could check each iteration if it's True, then end the IP if True. 
-          * Pluses:
-            * can fairly easily slap that on and implement it.
-            * It essentially sends a signal back up to a higher level of control, which then acts on the signal. 
-          * Cons: 
-            * Use of a global variable. 
-            * It feels hacky.
-            * What happens if multiple IPs end on the same tick? 
-              * Maybe it's okay, because flag would get set to true during IP execution, IP execution finishes, handler ends IP, then dismantles IP, then moves onto processing next IP, repeat. 
-        2.) Pass around the current IP_list index, and then end it from where it is.
-          * Pluses:
-            * No global variables
-            * Current IP almost certainly gets ended then and there.
-          * Cons:
-            * A lot of work to pass IP_list index around, both from a code writing standpoint, and from passing around information that rarely ever gets used. (much like storage_offset)
-            * Because it instakills current IP, errors could arise. 
-        3.) Potential third option? A signally system, that doesn't rely on a global variable. 
-          * What about an event listener in the run loop? 
-          * What about a special return value, instead of the standard IP_tuple, to signal that the IP should end.
-          * Pass around an IP_alive boolean flag with the IP_tuple, end the IP if it goes to false?
-            * How often and where would that need to be passed around? 
-        4.) Much like option two, pass around an end_this_IP flag, but instead of using the IP_tuple currently implemented, switch to using a dictionary. So that in the function definitions I can just write **kwargs and take whatever is given to it, then use whatever information is needed. 
-          * Pros:
-            * Can easily add more things to pass around if needed later. 
-            * Seems neater/more organized
-            * I just like this idea the best, maybe it's the string mode problem looming, and this seems like a potential out for that. maybe it's the increased flexibility. 
-          * Uncertain:
-            * Can't tell how it effects readability
-          * Cons: 
-            * Lots of rewriting of code to implement it.  
-        5.) IP as a class, to save the state of the current IP
-          * Pros:
-            * Good readablity: IP.location and IP.delta are as easily comprehensible as IP and IP_delta
-            * methods that act on the IP: 
-              IP.move() instead of having a separate move function
-              IP.reverse() 
-            * While having a global state for IP related stuff worked well with only one IP ever, the limitations of that system are showing, this gets around that.
-          * Cons: 
-            * Lots of refactoring, seems worth it though
-            * Still doesn't handle the some methods needing state, and other functions not needing state. 
-
-
-
-
-
-
-
-
-
+Fingerprints (subject to change):
+    1.) extensions will be written in python 
+    2.) fingerprint subdirectory
+    3.) path for importing: ./ then ./fingerprint
+    4.) file extension: .fp.py
