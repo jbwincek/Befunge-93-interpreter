@@ -424,7 +424,7 @@ try:
         initilize(f.read())
 except IndexError:
     sys.exit("Error: expected a Befunge-98 file as a command argument.")
-while tick_counter < max_ticks or not IP_list:
+while IP_list and tick_counter < max_ticks:
     # Run as long as there are IPs and the tick counter hasn't been exceeded.
     for i, IP in enumerate(IP_list):
         if IP.active:
