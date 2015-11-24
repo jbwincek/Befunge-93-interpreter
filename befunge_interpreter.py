@@ -191,6 +191,7 @@ def file_output(IP):
     #       act as reverse (r).
     #       Flags cell odd: linear text file, ignore spaces before each EOL, and
     #       any extra EOLs at the end. 
+    pass
 
 def get(IP):
     # 'g' : A "get" call (a way to retrieve data in storage). 
@@ -417,12 +418,16 @@ def tick(IP, should_move = True):
 def initilize(input_string):
     global funge
     global stack
+    global bounds
     stack = []
     input_lines = input_string.splitlines()
+    file_height = len(input_lines)
+    if file_height > bounds[1]:
+        bounds = (bounds[0], file_height)
     for y, line in enumerate(input_lines):
-        #print(line)
-        padding_amount = bounds[0]-len(line)
-        line = line + ' ' * padding_amount
+        line_length = len(line)
+        if line_length > bounds[0]:
+            bounds = (line_length, bounds[1])
         for x, letter in enumerate(line):
             funge[(x,y)] = letter
 
@@ -523,10 +528,12 @@ def run():
     _debug = args.debug
 
     try:
-        with open(args.source_file, 'r') as f:
+        with open(args.source_file, 'r', errors = 'ignore') as f:
             initilize(f.read())
     except FileNotFoundError:
         exit("Error: problem loading {}".format(args.source_file))
+    except UnicodeDecodeError:
+        exit("Error: problem decoding the unicode")
 
     while IP_list and tick_counter < max_ticks:
         # Run as long as there are IPs and the tick counter hasn't been exceeded.
@@ -537,11 +544,11 @@ def run():
                 if not IP.string_mode:
                     IP = tick(IP)
                 else:
-                    if funge[IP.location] == '"': 
+                    if funge.get(IP.location, ' ') == '"': 
                         switch_string_mode(IP)
                         IP.move()
                     else: 
-                        push_char(funge[IP.location])
+                        push_char(funge.get(IP.location, ' '))
                         IP.move()
             else:
                 IP_list.pop(i)
