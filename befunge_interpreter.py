@@ -1,3 +1,5 @@
+import argparse
+import copy
 import functools as ft
 import math
 import time
@@ -10,11 +12,12 @@ Befunge-98 Interpreter
 
 
 stack = []
+stack_of_stacks = [stack]
 IP_list = []
 bounds = (79,79)
 funge = {}
 string_mode = False
-max_ticks = 400000
+max_ticks = 50000
 tick_counter = 0
 _debug = False
 
@@ -170,11 +173,11 @@ def discard():
 
 def print_int():
     # '.' : Pop value and output as an integer
-    print(stack_pop(), end = ' ')
+    print(stack_pop(), end = ' ', flush = True)
 
 def print_ASCII():
     # ','   Pop value and output as an ASCII character
-    print(chr(stack_pop()), end = '')
+    print(chr(stack_pop()), end = '', flush = True)
 
 def trampoline(IP):
     # '#' : Trampoline: Skip next cell
@@ -182,24 +185,27 @@ def trampoline(IP):
     return IP
     
 
-def put():
+def put(IP):
     global funge
     # 'p' : A "put" call (a way to store a value for later use). 
-    #       Pop y, x, and v, then change the character at (x,y) 
-    #       in the program to the character with ASCII value v
-    y = stack_pop()
-    x = stack_pop()
+    #       Pop y, x, and v, apply the storage offset, then change
+    #       the character at the specified location in the funge space 
+    #       to the character with ASCII value v. 
+    y = stack_pop() + IP.storage_offset[1]
+    x = stack_pop() + IP.storage_offset[0]
     v = stack_pop()
     funge[(x,y)] = chr(v)
+    return IP
 
-def get():
+def get(IP):
     # 'g' : A "get" call (a way to retrieve data in storage). 
-    #       Pop y and x, then push ASCII value of the character 
-    #       at that position in the program. 
+    #       Pop y and x, apply storage offset, then push ASCII value 
+    #       of the character at that position in the program. 
     #       If (x,y) is out of bounds, push 0. 
-    y = stack_pop()
-    x = stack_pop()
+    y = stack_pop() + IP.storage_offset[1]
+    x = stack_pop() + IP.storage_offset[0]
     stack.append(ord(funge[(x,y)]))
+    return IP
 
 def ask_num():
     # '&' : Ask user for a number and push it
@@ -212,7 +218,7 @@ def ask_char():
     push_char(input())
 
 def nop():
-    # no op
+    # 'z' : do nothing (useful for concurrent timing)
     pass
 
 def end_IP(IP):
@@ -321,6 +327,45 @@ def store_character(IP):
     IP.reverse()
     return IP
 
+#def get_system_info(IP):
+#    pass
+
+def begin_block(IP):
+    # '{' : Begin bock, pop a cell, n, push a new stack to the stack of stacks
+    #       then transfer n elements from the SOSS to the TOSS. Then push storage
+    #       as a vector to the SOSS, and sets the new storage offset to the
+    #       location to be executed next by the IP (position + delta), it copies
+    #       these elements as a block so order is preserved
+    #       If n is zero, no elements are transfrred
+    #       If n  is negative, |n| zeros are pushed onto the SOSS. 
+    pass
+
+def end_block(IP): 
+    # '}' : End block, pop a cell, n, pops a vector off the SOSS which it assigns
+    #       to the storage offset, then transfers n elements (as a block) from the
+    #       TOSS to the SOSS, then pops the top stack of of the stack of stacks. 
+    #       If n is zero, no elemets are transferred
+    #       if N is negative, |n| cells are popped off the (original) SoSS
+    pass
+
+def stack_under_stack(IP):
+    # 'u' : Pops n, transfers n cells from SOSS to TOSS, one at a time, so order
+    #       is reversed.
+    #       If there is no SOSS, instruction sould reverse (r)
+    #       If n is negative, |n| cells are transferred from TOSS to SOSS
+    #       If count is zero, pass. 
+    pass
+
+def split(IP):
+    # 't' : duplicates current IP, executes child before parent, reversed delta
+    #       though. 
+    global IP_list
+    child_IP = reverse(copy.deepcopy(IP))
+    child_IP.move()
+    #child_IP = tick(child_IP, should_move = True)
+    IP_list.append(child_IP)
+    return IP
+
 def op(IP, funge = funge):
     try:
         # the case where the IP, Delta or storage offset don't get effected.
@@ -331,12 +376,13 @@ def op(IP, funge = funge):
         IP = ruleset.get(funge.get(IP.location, ' '), reverse)(IP)
     return IP
 
-def tick(IP):
+def tick(IP, should_move = True):
     # 
     if _debug:
         print(funge.get(IP.location, ' '), end = ' ')
     IP = op(IP)
-    IP.move()
+    if should_move:
+        IP.move()
     return IP
 
 def initilize(input_string):
@@ -399,6 +445,8 @@ ruleset = {'+' : add,
            ';' : jump_over, 
            'q' : quit,
            'k' : iterate,
+           't' : split,
+           'z' : nop,
            '0' : ft.partial(push_num, 0),
            '1' : ft.partial(push_num, 1),
            '2' : ft.partial(push_num, 2),
@@ -419,13 +467,28 @@ ruleset = {'+' : add,
 
 starter_IP = IP_state()
 IP_list.append(starter_IP)
+# try:
+#     with open(sys.argv[1], 'r') as f:
+#         initilize(f.read())
+# except IndexError:
+#     sys.exit("Error: expected a  as a command argument.")
+
+parser = argparse.ArgumentParser()
+parser.add_argument('source_file', help = 'Befunge-98 source code file')
+parser.add_argument('-d', '--debug', help = 'run in debug mode', action = 'store_true')
+args = parser.parse_args()
+_debug = args.debug
+
 try:
-    with open(sys.argv[1], 'r') as f:
+    with open(args.source_file, 'r') as f:
         initilize(f.read())
-except IndexError:
-    sys.exit("Error: expected a Befunge-98 file as a command argument.")
+except FileNotFoundError:
+    exit("Error: problem loading {}".format(args.source_file))
+
 while IP_list and tick_counter < max_ticks:
     # Run as long as there are IPs and the tick counter hasn't been exceeded.
+    if _debug:
+        print("Tick: {}".format(tick_counter))
     for i, IP in enumerate(IP_list):
         if IP.active:
             if not IP.string_mode:
@@ -437,6 +500,7 @@ while IP_list and tick_counter < max_ticks:
                 else: 
                     push_char(funge[IP.location])
                     IP.move()
-            IP_list[i] = IP
+        else:
+            IP_list.pop(i)
     tick_counter += 1
     #time.sleep(.01)

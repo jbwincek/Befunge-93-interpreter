@@ -6,18 +6,18 @@ Document:
     [ ] = execute
     [ ] i input file
     [ ] o output file
-    [ ] t split (IP)
-    [ ] u stack under stack
-    [ ] z no op
-    [ ] { begin block
-    [ ] } end block
+    [x] t split (IP)
+    [x] u stack under stack
+    [x] z no op
+    [x] { begin block
+    [x] } end block
 Write Tests:
     [x] x absolute delta
         [ ] Write tests for beyond standard functionality
     [ ] @ end the current IP
         [x] Well implementing it didn't break anything... 
     [x] j jump forward
-    [ ] k iterate
+    [x] k iterate
     [x] ' fetch character
         [ ] write more extensive tests, including: 
               [ ] landing on a trampoline
@@ -28,7 +28,7 @@ Write Tests:
     [ ] = execute
     [ ] i input file
     [ ] o output file
-    [ ] t split (IP)
+    [x] t split (IP)
     [ ] u stack under stack
     [ ] z no op
     [ ] { begin block
@@ -41,20 +41,23 @@ Implement:
     [ ] = execute
     [ ] i input file
     [ ] o output file
-    [ ] t split (IP)
+    [x] t split (IP)
     [ ] u stack under stack
-    [ ] z no op
+    [x] z no op
     [ ] { begin block
     [ ] } end block
 Other:
+    [x] use argparse for argument parsing
+    [x] accept a debug command line flag
     [ ] treat spaces "SGML-style" (ie, use only one tick to process multiple spaces, and count multiple contiguous spaces as only 1 space)
     [ ] alphabetize ruleset
     [ ] alphabetize instruction functions
     [ ] match function names to Befunge spec instruction names
     [ ] implement a run(funge_space)method, that takes a funge space as an argument, so different programs can be run without needing to start and stop the (python)interpreter, should be backwards compatible with current functionality
     [ ] format this document so that it doesn't rely on my narrow 45 column with word wrap width. 
-[ ] Add concurrency features  
-    [ ] address IP.active checking slow down issues 
+[x] Add concurrency features  
+    [ ] address IP.active checking slow down issues
+    [ ] split (t) may have issues still, with the order of execution.  
 Fingerprints (subject to change):
     1.) extensions will be written in python 
     2.) fingerprint subdirectory

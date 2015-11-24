@@ -126,5 +126,9 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_iterate(self):
         self.assert_correct_output("iterate_test.bf")
 
+    def test_split(self):
+        self.assert_correct_output("split_basic_test.bf")
+        self.assert_correct_output("split_advanced_test.bf")
+
 if __name__ == '__main__':
     unittest.main()
