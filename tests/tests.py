@@ -1,3 +1,4 @@
+import befunge_interpreter as bf
 from functools import wraps
 from os import path
 import re
@@ -129,6 +130,13 @@ class BefungeInterpreterTests(unittest.TestCase):
     def test_split(self):
         self.assert_correct_output("split_basic_test.bf")
         self.assert_correct_output("split_advanced_test.bf")
+
+class gnirts_test(unittest.TestCase):
+    def setUp(self):
+        bf.stack = [0, 116, 115, 101, 116]
+
+    def test_gnirts(self):
+        self.assertEqual(bf.gnirts(), 'test') 
 
 if __name__ == '__main__':
     unittest.main()

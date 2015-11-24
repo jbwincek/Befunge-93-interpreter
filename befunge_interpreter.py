@@ -86,7 +86,6 @@ def ask_num():
     #     doesn't handle bad input
     push_num(input())
 
-
 def begin_block(IP):
     # '{' : Begin bock, pop a cell, n, push a new stack to the stack of stacks
     #       then transfer n elements from the SOSS to the TOSS. Then push storage
@@ -171,6 +170,27 @@ def fetch_character(IP):
     push_char(funge.get(IP.location, ''))
     IP.move()
     return IP
+
+def file_input(IP):
+    # 'i' : pop a null-terminated (0"gnirts") string for the filename, followed
+    #       by a flags cell, and a vector Va of where to operate. 
+    #       If the file can be opened, it's inserted at Va then closed 
+    #       immediately, else i acts like reverse (r).
+    #       Two vectors—Vb and Va—are pushed onto the stack, Va being relative
+    #       to storage offset, Vb being the size of the inputed file.
+    #       Flags cell even: insert using end of line characters to start new 
+    #                        lines, like you'd expect
+    #       Flags cell odd:  insert input as binary, storing EOL and FF sequences
+    #                        in Funge-space (FF = formfeed: U+000C)
+    pass
+
+def file_output(IP):
+    # 'o' : pop a null terminated string for the filename, then a flags cell,
+    #       then vector Va describing the least point, then Vb describing the
+    #       size of the space to output. If file cannot be opened or written to
+    #       act as reverse (r).
+    #       Flags cell odd: linear text file, ignore spaces before each EOL, and
+    #       any extra EOLs at the end. 
 
 def get(IP):
     # 'g' : A "get" call (a way to retrieve data in storage). 
@@ -414,6 +434,18 @@ def funge_print(fungespace):
         output_string+='\n'
     print(output_string.rstrip())
 
+def gnirts():
+    # pop a null terminated string off the stack and return it
+    output = ''
+    popping = True
+    while popping:
+        character = stack_pop()
+        if character == 0:
+            break
+        else:
+            output += chr(character)
+    return output
+
 
 ruleset = {'+' : add, 
            '-' : subtract,
@@ -474,42 +506,48 @@ ruleset = {'+' : add,
            'f' : ft.partial(push_num, 15),
            }
 
-starter_IP = IP_state()
-IP_list.append(starter_IP)
-# try:
-#     with open(sys.argv[1], 'r') as f:
-#         initilize(f.read())
-# except IndexError:
-#     sys.exit("Error: expected a  as a command argument.")
+def run():
+    global tick_counter
+    starter_IP = IP_state()
+    IP_list.append(starter_IP)
+    # try:
+    #     with open(sys.argv[1], 'r') as f:
+    #         initilize(f.read())
+    # except IndexError:
+    #     sys.exit("Error: expected a  as a command argument.")
 
-parser = argparse.ArgumentParser()
-parser.add_argument('source_file', help = 'Befunge-98 source code file')
-parser.add_argument('-d', '--debug', help = 'run in debug mode', action = 'store_true')
-args = parser.parse_args()
-_debug = args.debug
+    parser = argparse.ArgumentParser()
+    parser.add_argument('source_file', help = 'Befunge-98 source code file')
+    parser.add_argument('-d', '--debug', help = 'run in debug mode', action = 'store_true')
+    args = parser.parse_args()
+    _debug = args.debug
 
-try:
-    with open(args.source_file, 'r') as f:
-        initilize(f.read())
-except FileNotFoundError:
-    exit("Error: problem loading {}".format(args.source_file))
+    try:
+        with open(args.source_file, 'r') as f:
+            initilize(f.read())
+    except FileNotFoundError:
+        exit("Error: problem loading {}".format(args.source_file))
 
-while IP_list and tick_counter < max_ticks:
-    # Run as long as there are IPs and the tick counter hasn't been exceeded.
-    if _debug:
-        print("Tick: {}".format(tick_counter))
-    for i, IP in enumerate(IP_list):
-        if IP.active:
-            if not IP.string_mode:
-                IP = tick(IP)
+    while IP_list and tick_counter < max_ticks:
+        # Run as long as there are IPs and the tick counter hasn't been exceeded.
+        if _debug:
+            print("Tick: {}".format(tick_counter))
+        for i, IP in enumerate(IP_list):
+            if IP.active:
+                if not IP.string_mode:
+                    IP = tick(IP)
+                else:
+                    if funge[IP.location] == '"': 
+                        switch_string_mode(IP)
+                        IP.move()
+                    else: 
+                        push_char(funge[IP.location])
+                        IP.move()
             else:
-                if funge[IP.location] == '"': 
-                    switch_string_mode(IP)
-                    IP.move()
-                else: 
-                    push_char(funge[IP.location])
-                    IP.move()
-        else:
-            IP_list.pop(i)
-    tick_counter += 1
-    #time.sleep(.01)
+                IP_list.pop(i)
+        tick_counter += 1
+        #time.sleep(.01)
+
+
+if __name__ == '__main__':
+    run()
