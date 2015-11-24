@@ -62,58 +62,40 @@ class IP_state:
     def reverse(self):
         self.delta = tuple([-d for d in self.delta])
 
-def stack_pop():
-    try:
-        return stack.pop()
-    except IndexError:
-        return 0
+
+""" --------------------------- Instructions ------------------------------- """ 
+
+def absolute_delta(IP):
+    # 'x' : Pop dy, pop dx, set IP_delta to (dx,dy)
+    dy = stack_pop()
+    dx = stack_pop()
+    IP.delta = (dx, dy)
+    return IP
 
 def add():
     # '+' : Addition: Pop a and b, then push a+b
     stack.append(stack_pop() + stack_pop())
 
-def subtract():
-    # '-' : Subtraction: Pop a and b, then push b-a
-    a = stack_pop()
-    b = stack_pop()
-    stack.append(b-a)
+def ask_char():
+    # '~' : Ask user for a character and push its ASCII value
+    #      doesn't handle bad input
+    push_char(input())
 
-def multiply():
-    # '*' : Multiplication: Pop a and b, then push a*b
-    stack.append(stack_pop() * stack_pop())
+def ask_num():
+    # '&' : Ask user for a number and push it
+    #     doesn't handle bad input
+    push_num(input())
 
-def divide():
-    # '/' : Integer division: Pop a and b, then push b/a, rounded down. 
-    #       If a is zero, ask the user what result they want.
-    a = stack_pop()
-    b = stack_pop()
-    if not a: 
-        ask_num()
-    else: 
-        c = int(b) // int(a)
-        stack.append(c)
 
-def modulo():
-    # '%' : Modulo: Pop a and b, then push the remainder of the integer division of b/a.
-    a = stack_pop()
-    b = stack_pop()
-    stack.append(b%a)
-
-def logical_not():
-    # '!'' : Logical NOT: Pop a value. If the value is zero, push 1; otherwise, push zero.
-    if not stack_pop(): 
-        stack.append(1)
-    else:
-        stack.append(0)
-
-def greater_than():
-    # '`' : Greater than: Pop a and b, then push 1 if b>a, otherwise zero.
-    a = stack_pop()
-    b = stack_pop()
-    if b>a:
-        stack.append(1)
-    else:
-        stack.append(0)
+def begin_block(IP):
+    # '{' : Begin bock, pop a cell, n, push a new stack to the stack of stacks
+    #       then transfer n elements from the SOSS to the TOSS. Then push storage
+    #       as a vector to the SOSS, and sets the new storage offset to the
+    #       location to be executed next by the IP (position + delta), it copies
+    #       these elements as a block so order is preserved
+    #       If n is zero, no elements are transfrred
+    #       If n  is negative, |n| zeros are pushed onto the SOSS. 
+    pass
 
 def change_direction(new_direction, IP):
     if new_direction in ['right', 'left', 'up', 'down']:
@@ -129,9 +111,113 @@ def change_direction(new_direction, IP):
     else:
         raise KeyError
 
-def random_direction(IP):
-    # '?' : Start moving in a random cardinal direction
-    return change_direction(random.choice(['right', 'left', 'up', 'down']), IP)
+def clear_stack():
+    # 'n' : completely empty the stack
+    while stack:
+       stack_pop()
+
+def compare(IP):
+    # 'w' : pop b, pop a, if a<b turn left, if a>b turn right, if a=b go straight
+    b = stack_pop()
+    a = stack_pop()
+    if a<b:
+        return turn_left(IP)
+    elif a>b:
+        return turn_right(IP)
+    else:
+        return IP
+
+def discard():
+    # '$' : Pop value from the stack and discard it
+    stack_pop()
+
+def divide():
+    # '/' : Integer division: Pop a and b, then push b/a, rounded down. 
+    #       If a is zero, ask the user what result they want.
+    a = stack_pop()
+    b = stack_pop()
+    if not a: 
+        ask_num()
+    else: 
+        c = int(b) // int(a)
+        stack.append(c)
+
+def duplicate():
+    # ':' : Duplicate value on top of the stack
+        value = stack_pop()
+        stack.append(value)
+        stack.append(value)
+
+def end_block(IP): 
+    # '}' : End block, pop a cell, n, pops a vector off the SOSS which it assigns
+    #       to the storage offset, then transfers n elements (as a block) from the
+    #       TOSS to the SOSS, then pops the top stack of of the stack of stacks. 
+    #       If n is zero, no elemets are transferred
+    #       if N is negative, |n| cells are popped off the (original) SoSS
+    pass
+
+
+def end_IP(IP):
+    # '@' : end the current IP, if the last IP then call leave()
+    IP.active = False
+    return IP
+
+
+def fetch_character(IP):
+    # "'" : push the value of the next character in IP_delta direction to the 
+    #       stack,then skip over that character, takes only one tick, 
+    #       instruction is an apostrophe.
+    IP.move()
+    push_char(funge.get(IP.location, ''))
+    IP.move()
+    return IP
+
+def get(IP):
+    # 'g' : A "get" call (a way to retrieve data in storage). 
+    #       Pop y and x, apply storage offset, then push ASCII value 
+    #       of the character at that position in the program. 
+    #       If (x,y) is out of bounds, push 0. 
+    y = stack_pop() + IP.storage_offset[1]
+    x = stack_pop() + IP.storage_offset[0]
+    stack.append(ord(funge[(x,y)]))
+    return IP
+
+#def get_system_info(IP):
+#    pass
+
+def greater_than():
+    # '`' : Greater than: Pop a and b, then push 1 if b>a, otherwise zero.
+    a = stack_pop()
+    b = stack_pop()
+    if b>a:
+        stack.append(1)
+    else:
+        stack.append(0)
+
+def iterate(IP):
+    # 'k' : pop n, find next instruction in IP_delta direction, do that n times, 
+    #       takes only one tick
+    n = stack_pop()
+    IP.move()
+    while funge.get(IP.location, ' ') == ' ':
+        IP.move()
+    for i in range(n):
+        IP = op(IP)
+    return IP
+
+def jump_forward(IP):
+    # 'j' : pop n, the jump over n spaces in the IP_delta direction
+    n = stack_pop()
+    for i in range(n):
+        IP.move()
+    return IP
+
+def jump_over(IP):
+    # ';' : Skip over all instructions till the next ; is reached, takes zero ticks to execute
+    IP.move()
+    while funge.get(IP.location, '') != ';':
+        IP.move()
+    return IP
 
 def left_right_choice(IP):
     # '_' : Pop a value; move right if value=0, left otherwise
@@ -140,50 +226,40 @@ def left_right_choice(IP):
     else:
         return change_direction('right', IP)
 
-def up_down_choice(IP):
-    # '|' : Pop a value; move down if value=0, up otherwise
-    if stack_pop():
-        return change_direction('up', IP)
+def logical_not():
+    # '!'' : Logical NOT: Pop a value. If the value is zero, push 1; otherwise, push zero.
+    if not stack_pop(): 
+        stack.append(1)
     else:
-        return change_direction('down', IP)
+        stack.append(0)
 
-def switch_string_mode(IP):
-    # '"' : Start string mode: push each character's ASCII value all the way to the next "
-    #       yes, '"' does indeed work as intended, even though it looks fugly as hell
-    IP.string_mode = not IP.string_mode
-    return IP
-
-def duplicate():
-    # ':' : Duplicate value on top of the stack
-        value = stack_pop()
-        stack.append(value)
-        stack.append(value)
-
-def swap():
-    # '\' : Swap two values on top of the stack
-    # listed in the instruction dictionary as '\\'
+def modulo():
+    # '%' : Modulo: Pop a and b, then push the remainder of the integer division of b/a.
     a = stack_pop()
     b = stack_pop()
-    stack.append(a)
-    stack.append(b)
+    stack.append(b%a)
 
-def discard():
-    # '$' : Pop value from the stack and discard it
-    stack_pop()
+def multiply():
+    # '*' : Multiplication: Pop a and b, then push a*b
+    stack.append(stack_pop() * stack_pop())
 
-def print_int():
-    # '.' : Pop value and output as an integer
-    print(stack_pop(), end = ' ', flush = True)
+def nop():
+    # 'z' : do nothing (useful for concurrent timing)
+    pass
 
 def print_ASCII():
     # ','   Pop value and output as an ASCII character
     print(chr(stack_pop()), end = '', flush = True)
-
-def trampoline(IP):
-    # '#' : Trampoline: Skip next cell
-    IP.move()
-    return IP
     
+def print_int():
+    # '.' : Pop value and output as an integer
+    print(stack_pop(), end = ' ', flush = True)
+
+def push_char(char):
+    stack.append(ord(char))
+
+def push_num(num):
+    stack.append(int(num))
 
 def put(IP):
     global funge
@@ -197,51 +273,82 @@ def put(IP):
     funge[(x,y)] = chr(v)
     return IP
 
-def get(IP):
-    # 'g' : A "get" call (a way to retrieve data in storage). 
-    #       Pop y and x, apply storage offset, then push ASCII value 
-    #       of the character at that position in the program. 
-    #       If (x,y) is out of bounds, push 0. 
-    y = stack_pop() + IP.storage_offset[1]
-    x = stack_pop() + IP.storage_offset[0]
-    stack.append(ord(funge[(x,y)]))
-    return IP
-
-def ask_num():
-    # '&' : Ask user for a number and push it
-    #     doesn't handle bad input
-    push_num(input())
-
-def ask_char():
-    # '~' : Ask user for a character and push its ASCII value
-    #      doesn't handle bad input
-    push_char(input())
-
-def nop():
-    # 'z' : do nothing (useful for concurrent timing)
-    pass
-
-def end_IP(IP):
-    # end the current IP, if the last IP then call leave()
-    IP.active = False
-    return IP
-
-def push_num(num):
-    stack.append(int(num))
-
-def push_char(char):
-    stack.append(ord(char))
+def random_direction(IP):
+    # '?' : Start moving in a random cardinal direction
+    return change_direction(random.choice(['right', 'left', 'up', 'down']), IP)
 
 def reverse(IP):
     # 'r' : Multiply the IP_delta by -1
     IP.reverse()
     return IP
 
-def absolute_delta(IP):
-    # 'x' : Pop dy, pop dx, set IP_delta to (dx,dy)
-    dy = stack_pop()
-    dx = stack_pop()
-    IP.delta = (dx, dy)
+def split(IP):
+    # 't' : duplicates current IP, executes child before parent, reversed delta
+    #       though. 
+    global IP_list
+    child_IP = reverse(copy.deepcopy(IP))
+    child_IP.move()
+    #child_IP = tick(child_IP, should_move = True)
+    IP_list.append(child_IP)
+    return IP
+
+def stack_pop():
+    try:
+        return stack.pop()
+    except IndexError:
+        return 0
+
+
+def stack_under_stack(IP):
+    # 'u' : Pops n, transfers n cells from SOSS to TOSS, one at a time, so order
+    #       is reversed.
+    #       If there is no SOSS, instruction sould reverse (r)
+    #       If n is negative, |n| cells are transferred from TOSS to SOSS
+    #       If count is zero, pass. 
+    pass
+
+def store_character(IP):
+    # 's' : pop a value off the stack, write it as a character into position+delta
+    c = stack_pop()
+    IP.move()
+    funge[IP.location] = chr(c)
+    IP.reverse()
+    IP.move()
+    IP.reverse()
+    return IP
+
+def subtract():
+    # '-' : Subtraction: Pop a and b, then push b-a
+    a = stack_pop()
+    b = stack_pop()
+    stack.append(b-a)
+
+def swap():
+    # '\' : Swap two values on top of the stack
+    # listed in the instruction dictionary as '\\'
+    a = stack_pop()
+    b = stack_pop()
+    stack.append(a)
+    stack.append(b)
+
+def switch_string_mode(IP):
+    # '"' : Start string mode: push each character's ASCII value all the way to the next "
+    #       yes, '"' does indeed work as intended, even though it looks fugly as hell
+    IP.string_mode = not IP.string_mode
+    return IP
+
+def trampoline(IP):
+    # '#' : Trampoline: Skip next cell
+    IP.move()
+    return IP
+
+def turn_left(IP):
+    # '[' : change the IP_delta so that the direction is now rotated 90 degrees to the left
+    theta = math.pi/2 # 90° in radians, 90° cause counterclockwise rotation matrix
+    x,y = IP.delta
+    nx = (x*math.cos(theta)) - (y*math.sin(theta)) 
+    ny = (x*math.sin(theta)) + (y*math.cos(theta)) 
+    IP.delta = (int(nx),int(ny))
     return IP
 
 def turn_right(IP):
@@ -257,114 +364,16 @@ def turn_right(IP):
     IP.delta = (int(nx),int(ny))
     return IP
 
-
-def turn_left(IP):
-    # '[' : change the IP_delta so that the direction is now rotated 90 degrees to the left
-    theta = math.pi/2 # 90° in radians, 90° cause counterclockwise rotation matrix
-    x,y = IP.delta
-    nx = (x*math.cos(theta)) - (y*math.sin(theta)) 
-    ny = (x*math.sin(theta)) + (y*math.cos(theta)) 
-    IP.delta = (int(nx),int(ny))
-    return IP
-
-def compare(IP):
-    # 'w' : pop b, pop a, if a<b turn left, if a>b turn right, if a=b go straight
-    b = stack_pop()
-    a = stack_pop()
-    if a<b:
-        return turn_left(IP)
-    elif a>b:
-        return turn_right(IP)
+def up_down_choice(IP):
+    # '|' : Pop a value; move down if value=0, up otherwise
+    if stack_pop():
+        return change_direction('up', IP)
     else:
-        return IP
+        return change_direction('down', IP)
 
-def jump_over(IP):
-    # ';' : Skip over all instructions till the next ; is reached, takes zero ticks to execute
-    IP.move()
-    while funge.get(IP.location, '') != ';':
-        IP.move()
-    return IP
- 
-def jump_forward(IP):
-    # 'j' : pop n, the jump over n spaces in the IP_delta direction
-    n = stack_pop()
-    for i in range(n):
-        IP.move()
-    return IP
 
-def iterate(IP):
-    # 'k' : pop n, find next instruction in IP_delta direction, do that n times, 
-    #       takes only one tick
-    n = stack_pop()
-    IP.move()
-    while funge.get(IP.location, ' ') == ' ':
-        IP.move()
-    for i in range(n):
-        IP = op(IP)
-    return IP
 
-def clear_stack():
-    # 'n' : completely empty the stack
-    while stack:
-       stack_pop()
-
-def fetch_character(IP):
-    # "'" : push the value of the next character in IP_delta direction to the 
-    #       stack,then skip over that character, takes only one tick, 
-    #       instruction is an apostrophe.
-    IP.move()
-    push_char(funge.get(IP.location, ''))
-    IP.move()
-    return IP
-
-def store_character(IP):
-    # 's' : pop a value off the stack, write it as a character into position+delta
-    c = stack_pop()
-    IP.move()
-    funge[IP.location] = chr(c)
-    IP.reverse()
-    IP.move()
-    IP.reverse()
-    return IP
-
-#def get_system_info(IP):
-#    pass
-
-def begin_block(IP):
-    # '{' : Begin bock, pop a cell, n, push a new stack to the stack of stacks
-    #       then transfer n elements from the SOSS to the TOSS. Then push storage
-    #       as a vector to the SOSS, and sets the new storage offset to the
-    #       location to be executed next by the IP (position + delta), it copies
-    #       these elements as a block so order is preserved
-    #       If n is zero, no elements are transfrred
-    #       If n  is negative, |n| zeros are pushed onto the SOSS. 
-    pass
-
-def end_block(IP): 
-    # '}' : End block, pop a cell, n, pops a vector off the SOSS which it assigns
-    #       to the storage offset, then transfers n elements (as a block) from the
-    #       TOSS to the SOSS, then pops the top stack of of the stack of stacks. 
-    #       If n is zero, no elemets are transferred
-    #       if N is negative, |n| cells are popped off the (original) SoSS
-    pass
-
-def stack_under_stack(IP):
-    # 'u' : Pops n, transfers n cells from SOSS to TOSS, one at a time, so order
-    #       is reversed.
-    #       If there is no SOSS, instruction sould reverse (r)
-    #       If n is negative, |n| cells are transferred from TOSS to SOSS
-    #       If count is zero, pass. 
-    pass
-
-def split(IP):
-    # 't' : duplicates current IP, executes child before parent, reversed delta
-    #       though. 
-    global IP_list
-    child_IP = reverse(copy.deepcopy(IP))
-    child_IP.move()
-    #child_IP = tick(child_IP, should_move = True)
-    IP_list.append(child_IP)
-    return IP
+""" ---------------------- interpreter functions --------------------------- """
 
 def op(IP, funge = funge):
     try:

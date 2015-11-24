@@ -51,7 +51,7 @@ Other:
     [x] accept a debug command line flag
     [ ] treat spaces "SGML-style" (ie, use only one tick to process multiple spaces, and count multiple contiguous spaces as only 1 space)
     [ ] alphabetize ruleset
-    [ ] alphabetize instruction functions
+    [x] alphabetize instruction functions
     [ ] match function names to Befunge spec instruction names
     [ ] implement a run(funge_space)method, that takes a funge space as an argument, so different programs can be run without needing to start and stop the (python)interpreter, should be backwards compatible with current functionality
     [ ] format this document so that it doesn't rely on my narrow 45 column with word wrap width. 
