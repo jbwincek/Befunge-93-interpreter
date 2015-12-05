@@ -1,3 +1,4 @@
+# coding=utf-8
 import argparse
 import copy
 import functools as ft
@@ -17,7 +18,7 @@ IP_list = []
 bounds = (79,79)
 funge = {}
 string_mode = False
-max_ticks = 50000
+max_ticks = 500000
 tick_counter = 0
 _debug = False
 
@@ -89,12 +90,36 @@ def ask_num():
 def begin_block(IP):
     # '{' : Begin bock, pop a cell, n, push a new stack to the stack of stacks
     #       then transfer n elements from the SOSS to the TOSS. Then push storage
-    #       as a vector to the SOSS, and sets the new storage offset to the
-    #       location to be executed next by the IP (position + delta), it copies
-    #       these elements as a block so order is preserved
-    #       If n is zero, no elements are transfrred
+    #       offset as a vector to the SOSS, and sets the new storage offset to 
+    #       the location to be executed next by the IP (position + delta), it 
+    #       copies these elements as a block so order is preserved
+    #       If n is zero, no elements are transferred
     #       If n  is negative, |n| zeros are pushed onto the SOSS. 
-    pass
+    global stack_of_stacks
+    global stack
+    n = stack_pop()
+    new_stack = []
+    if n >= 0:
+        # transfer n elements from the second to the top stack
+        for i in range(n):
+            new_stack.append(stack_pop())
+        new_stack.reverse() #restore order 
+    else: 
+        # push |n| zeros onto the second on the stack
+        for i in range(abs(n)):
+            new_stack.append(0)
+    # push storage offset as vector to second on the stack
+    push_num(IP.storage_offset[0])
+    push_num(IP.storage_offset[1])
+    stack_of_stacks.append(new_stack)
+    stack = stack_of_stacks[-1]
+    # set the storage offset to the next location the IP would move
+    old_IP = copy.deepcopy(IP)
+    old_IP.move()
+    IP.storage_offset = old_IP.location
+    return IP
+
+
 
 def change_direction(new_direction, IP):
     if new_direction in ['right', 'left', 'up', 'down']:
@@ -151,10 +176,24 @@ def end_block(IP):
     # '}' : End block, pop a cell, n, pops a vector off the SOSS which it assigns
     #       to the storage offset, then transfers n elements (as a block) from the
     #       TOSS to the SOSS, then pops the top stack of of the stack of stacks. 
-    #       If n is zero, no elemets are transferred
+    #       If n is zero, no elements are transferred
     #       if N is negative, |n| cells are popped off the (original) SoSS
-    pass
-
+    global stack_of_stacks
+    global stack
+    n = stack_pop()
+    SO_y = stack_pop()
+    SO_x = stack_pop()
+    IP.storage_offset = (SO_x, SO_y)
+    old_TOS = stack_of_stacks.pop()
+    stack = stack_of_stacks[-1]
+    if n >= 0:
+        # transfer elements from top to second on stack as a block
+        slice_to_move = old_TOS[-n:]
+        stack.append(slice_to_move)
+    else:
+        for n in range(abs(n)):
+            stack_pop()
+    return IP
 
 def end_IP(IP):
     # '@' : end the current IP, if the last IP then call leave()
@@ -167,8 +206,7 @@ def fetch_character(IP):
     #       stack,then skip over that character, takes only one tick, 
     #       instruction is an apostrophe.
     IP.move()
-    push_char(funge.get(IP.location, ''))
-    IP.move()
+    push_char(funge.get(IP.location, ' '))
     return IP
 
 def file_input(IP):
@@ -177,7 +215,7 @@ def file_input(IP):
     #       If the file can be opened, it's inserted at Va then closed 
     #       immediately, else i acts like reverse (r).
     #       Two vectors—Vb and Va—are pushed onto the stack, Va being relative
-    #       to storage offset, Vb being the size of the inputed file.
+    #       to storage offset, Vb being the size of the inputted file.
     #       Flags cell even: insert using end of line characters to start new 
     #                        lines, like you'd expect
     #       Flags cell odd:  insert input as binary, storing EOL and FF sequences
@@ -216,14 +254,25 @@ def greater_than():
         stack.append(0)
 
 def iterate(IP):
-    # 'k' : pop n, find next instruction in IP_delta direction, do that n times, 
-    #       takes only one tick
+    # 'k' : pop n, find next instruction in movement path, do that n times, 
+    #       takes only one tick. Follows, not executes, movement markers. 
     n = stack_pop()
-    IP.move()
-    while funge.get(IP.location, ' ') == ' ':
+    if n == 0:
         IP.move()
+        return IP
+    k_location = IP.location
+    IP.move()
+    seeking = True
+    while seeking:
+        if funge.get(IP.location, ' ') in (' ', ';'):
+            IP.move()
+        else: 
+            operand_location = IP.location
+            seeking = False
     for i in range(n):
+        IP.location = operand_location
         IP = op(IP)
+    IP.location = k_location
     return IP
 
 def jump_forward(IP):
@@ -236,8 +285,12 @@ def jump_forward(IP):
 def jump_over(IP):
     # ';' : Skip over all instructions till the next ; is reached, takes zero ticks to execute
     IP.move()
-    while funge.get(IP.location, '') != ';':
-        IP.move()
+    jumping = True
+    while jumping:
+        if funge.get(IP.location, ' ') != ';':
+            IP.move()
+        else:
+            jumping = False
     return IP
 
 def left_right_choice(IP):
@@ -258,7 +311,10 @@ def modulo():
     # '%' : Modulo: Pop a and b, then push the remainder of the integer division of b/a.
     a = stack_pop()
     b = stack_pop()
-    stack.append(b%a)
+    if not a:
+        ask_num()
+    else:
+        stack.append(b%a)
 
 def multiply():
     # '*' : Multiplication: Pop a and b, then push a*b
@@ -323,7 +379,7 @@ def stack_pop():
 def stack_under_stack(IP):
     # 'u' : Pops n, transfers n cells from SOSS to TOSS, one at a time, so order
     #       is reversed.
-    #       If there is no SOSS, instruction sould reverse (r)
+    #       If there is no SOSS, instruction should reverse (r)
     #       If n is negative, |n| cells are transferred from TOSS to SOSS
     #       If count is zero, pass. 
     pass
@@ -415,7 +471,7 @@ def tick(IP, should_move = True):
         IP.move()
     return IP
 
-def initilize(input_string):
+def initilize_funge_space(input_string):
     global funge
     global stack
     global bounds
@@ -450,6 +506,12 @@ def gnirts():
         else:
             output += chr(character)
     return output
+
+def SGML_seek(IP):
+    # process contiguous spaces in one tick. 
+    while funge.get(IP.location, ' ') == ' ':
+        IP.move()
+    return IP
 
 
 ruleset = {'+' : add, 
@@ -493,6 +555,8 @@ ruleset = {'+' : add,
            'k' : iterate,
            't' : split,
            'z' : nop,
+           '{' : begin_block,
+           '}' : end_block,
            '0' : ft.partial(push_num, 0),
            '1' : ft.partial(push_num, 1),
            '2' : ft.partial(push_num, 2),
@@ -513,23 +577,22 @@ ruleset = {'+' : add,
 
 def run():
     global tick_counter
+    global _debug
+    global max_ticks
     starter_IP = IP_state()
     IP_list.append(starter_IP)
-    # try:
-    #     with open(sys.argv[1], 'r') as f:
-    #         initilize(f.read())
-    # except IndexError:
-    #     sys.exit("Error: expected a  as a command argument.")
 
     parser = argparse.ArgumentParser()
     parser.add_argument('source_file', help = 'Befunge-98 source code file')
     parser.add_argument('-d', '--debug', help = 'run in debug mode', action = 'store_true')
+    parser.add_argument('-t', '--max_ticks', help = 'maximum number of ticks to run', type = int, default = 50000)
     args = parser.parse_args()
     _debug = args.debug
+    max_ticks = args.max_ticks
 
     try:
         with open(args.source_file, 'r', errors = 'ignore') as f:
-            initilize(f.read())
+            initilize_funge_space(f.read())
     except FileNotFoundError:
         exit("Error: problem loading {}".format(args.source_file))
     except UnicodeDecodeError:
@@ -547,6 +610,9 @@ def run():
                     if funge.get(IP.location, ' ') == '"': 
                         switch_string_mode(IP)
                         IP.move()
+                    elif funge.get(IP.location, ' ') == ' ':
+                        push_char(' ')
+                        IP = SGML_seek(IP)
                     else: 
                         push_char(funge.get(IP.location, ' '))
                         IP.move()

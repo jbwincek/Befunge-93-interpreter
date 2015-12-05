@@ -4,8 +4,8 @@ Document:
     [ ] ( load semantics
     [ ] ) unload semantics
     [ ] = execute
-    [ ] i input file
-    [ ] o output file
+    [x] i input file
+    [x] o output file
     [x] t split (IP)
     [x] u stack under stack
     [x] z no op
@@ -17,12 +17,13 @@ Write Tests:
     [ ] @ end the current IP
         [x] Well implementing it didn't break anything... 
     [x] j jump forward
+    [ ] ; jump over
     [x] k iterate
     [x] ' fetch character
         [ ] write more extensive tests, including: 
               [ ] landing on a trampoline
               [ ] jumping over an edge
-    [ ] get system info tests
+    [ ] y get system info tests
     [ ] ( load semantics
     [ ] ) unload semantics
     [ ] = execute
@@ -35,7 +36,7 @@ Write Tests:
     [ ] } end block
 Implement:
     [x] k iterate
-    [ ] # get system info
+    [ ] y get system info
     [ ] ( load semantics
     [ ] ) unload semantics
     [ ] = execute
@@ -44,17 +45,18 @@ Implement:
     [x] t split (IP)
     [ ] u stack under stack
     [x] z no op
-    [ ] { begin block
-    [ ] } end block
+    [x] { begin block
+    [x] } end block
 Other:
     [x] use argparse for argument parsing
     [x] accept a debug command line flag
-    [ ] treat spaces "SGML-style" (ie, use only one tick to process multiple spaces, and count multiple contiguous spaces as only 1 space)
+    [x] treat spaces "SGML-style" (ie, use only one tick to process multiple spaces, and count multiple contiguous spaces as only 1 space)
     [ ] alphabetize ruleset
     [x] alphabetize instruction functions
     [ ] match function names to Befunge spec instruction names
     [ ] implement a run(funge_space)method, that takes a funge space as an argument, so different programs can be run without needing to start and stop the (python)interpreter, should be backwards compatible with current functionality
-    [ ] format this document so that it doesn't rely on my narrow 45 column with word wrap width. 
+    [ ] format this document so that it doesn't rely on my narrow 45 column with word wrap width.
+    [ ] figure out what "BAD: 4k # does nothing and hits #" means exactly, and fix it. 
 [x] Add concurrency features  
     [ ] address IP.active checking slow down issues
     [ ] split (t) may have issues still, with the order of execution.  
